@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900">
+  <defs>
+    <style>
+      .cls-1, .cls-2 {
+        font-size: 190px;
+        fill: #fff;
+        text-anchor: middle;
+      }
+
+      .cls-1 {
+        font-family: "Mr Dafoe";
+      }
+
+      .cls-2 {
+        font-family: HelveticaNeueLTStd-Md, "Helvetica Neue LT Std";
+        font-weight: 500;
+      }
+    </style>
+  </defs>
+  <text id="Redbar_" data-name="Redbar " class="cls-1" transform="translate(448.718 440.136) rotate(-16.827) scale(1.439)"><tspan x="0">Redbar</tspan></text>
+  <text id="Rewind" class="cls-1" transform="translate(448.718 634.539) rotate(-16.827) scale(1.439)"><tspan x="0">Rewind</tspan></text>
+  <text id="_" data-name="®" class="cls-2" transform="translate(809.969 600.33) scale(0.235)"><tspan x="0">®</tspan></text>
+</svg>
