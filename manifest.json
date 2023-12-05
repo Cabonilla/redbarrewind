@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Give it a year.",
   "permissions": ["storage", "tabs", "activeTab", "scripting"],
-  "host_permissions": ["https://*.youtube.com/watch*", "https://*.spotify.com/*"],
+  "host_permissions": ["https://*.youtube.com/*", "https://*.spotify.com/*"],
   "action": {
     "default_icon": {
       "16": "assets/rrewind16.png",
@@ -17,16 +17,18 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://*.youtube.com/watch*", "https://*.spotify.com/*"],
-      "js": ["content.js"]
+      "matches": ["https://*.youtube.com/*", "https://*.spotify.com/*"],
+      "js": ["content.js"],
+      "all_frames": true
     }
-  ],
+  ],  
   "web_accessible_resources": [
     {
       "resources": [
         "assets/rrewind.svg",
         "assets/redbarrewind.svg",
-        "assets/link.svg"
+        "assets/link.svg",
+        "assets/time.svg"
       ],
       "matches": ["https://*.youtube.com/*", "https://*.spotify.com/*"]
     }
