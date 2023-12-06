@@ -9,7 +9,7 @@ console.log("content.js");
 
   let domain = window.location.href;
 
-  function toggleOverlay(overlayVisible) {
+  function toggleOverlay() {
     const videoElement = document.getElementsByTagName("video")[0];
     const popup = document.getElementById("rr_overlay");
 
@@ -17,7 +17,8 @@ console.log("content.js");
       const updateOverlayPosition = () => {
         const videoRect = videoElement.getBoundingClientRect();
 
-        if (overlayVisible) {
+        if (overlayVisibleBool) {
+          console.log("overlay: ", overlayVisibleBool)
           console.log(videoRect);
           popup.style.display = "flex";
           popup.style.position = "absolute";
@@ -43,7 +44,7 @@ console.log("content.js");
       };
       updateOverlayPosition();
 
-      if (!listenersAdded) {
+      if (!listenersAdded && overlayVisibleBool) {
         window.addEventListener("resize", updateOverlayPosition);
         videoElement.addEventListener("resize", updateOverlayPosition)
         listenersAdded = true;
@@ -51,17 +52,6 @@ console.log("content.js");
     }
 
   }
-
-  window.onresize = function () {
-    const videoElement = document.querySelector("video");
-    const videoRect = videoElement.getBoundingClientRect();
-    const popup = document.getElementById("rr_overlay");
-    popup.style.left = videoRect.left + "px";
-    popup.style.bottom = videoRect.bottom + "px";
-    popup.style.top = videoRect.top + "px";
-    popup.style.width = videoRect.width + "px";
-    popup.style.height = videoRect.height + "px";
-  };
 
   let overlay_style = `
   display: none; 
@@ -94,6 +84,7 @@ console.log("content.js");
   border: 0px solid;
   background-color: transparent;
   color: white;
+  width: 150px;
   font-size: 24px;
   padding: 10px;
   padding: .5em;
@@ -106,6 +97,7 @@ console.log("content.js");
   let form_style = `
   display: flex;
   align-items: center;
+  justify-content: center;
 `;
 
   let button_style = `
@@ -120,6 +112,7 @@ console.log("content.js");
   border-radius: 5px;
   font-size: 12px;
   color: white;
+  margin-left: 10px;
 `;
 
   let link_button_style = `
@@ -219,7 +212,7 @@ console.log("content.js");
           })
         : null;
       overlayVisibleBool = false;
-      toggleOverlay(overlayVisibleBool);
+      toggleOverlay();
     } else if (action === "link") {
       const videoElement = document.querySelector("video");
       let totalSeconds = videoElement.currentTime;
@@ -274,7 +267,7 @@ console.log("content.js");
       console.log("TOGGLE ACTIVATED!");
       overlayVisibleBool = !overlayVisibleBool;
       console.log("overlay: ", overlayVisibleBool);
-      toggleOverlay(overlayVisibleBool);
+      toggleOverlay();
     }
   });
 
