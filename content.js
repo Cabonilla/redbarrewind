@@ -15,9 +15,9 @@ console.log("content.js");
 
     if (videoElement && popup) {
       const updateOverlayPosition = () => {
-        const videoRect = videoElement.getBoundingClientRect();
 
         if (overlayVisibleBool) {
+          const videoRect = videoElement.getBoundingClientRect();
           console.log("overlay: ", overlayVisibleBool)
           console.log(videoRect);
           popup.style.display = "flex";
