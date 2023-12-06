@@ -1,3 +1,5 @@
+console.log("background.js")
+
 function getActiveTabId(callback) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     if (tabs && tabs.length > 0) {

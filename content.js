@@ -5,44 +5,51 @@ console.log("content.js");
   window.hasRun = true;
 
   let overlayVisibleBool = false;
+  let listenersAdded = false;
 
   let domain = window.location.href;
 
   function toggleOverlay(overlayVisible) {
     const videoElement = document.getElementsByTagName("video")[0];
     const popup = document.getElementById("rr_overlay");
-    const inputElement = document.getElementById("timeInput");
 
     if (videoElement && popup) {
-      const videoRect = videoElement.getBoundingClientRect();
-      const myInput = document.getElementById("timeInput");
+      const updateOverlayPosition = () => {
+        const videoRect = videoElement.getBoundingClientRect();
 
-      overlayVisible = !overlayVisible;
+        if (overlayVisible) {
+          console.log(videoRect);
+          popup.style.display = "flex";
+          popup.style.position = "absolute";
+          popup.style.left = videoRect.left + "px";
+          popup.style.bottom = videoRect.bottom + "px";
+          popup.style.top = videoRect.top + "px";
+          popup.style.width = videoRect.width + "px";
+          popup.style.height = videoRect.height + "px";
 
-      if (!overlayVisible) {
-        console.log(videoRect);
-        popup.style.display = "flex";
-        popup.style.position = "absolute";
-        popup.style.left = videoRect.left + "px";
-        popup.style.bottom = videoRect.bottom + "px";
-        popup.style.top = videoRect.top + "px";
-        popup.style.width = videoRect.width + "px";
-        popup.style.height = videoRect.height + "px";
+          popup.style.zIndex = 9999;
 
-        popup.style.zIndex = 9999;
+          popup.style.justifyContent = "center";
+          popup.style.alignItems = "center";
+          popup.style.flexDirection = "column";
 
-        popup.style.justifyContent = "center";
-        popup.style.alignItems = "center";
-        popup.style.flexDirection = "column";
-
-        const timeInput = document.getElementById("timeInput");
-        if (timeInput) {
-          timeInput.focus();
+          const timeInput = document.getElementById("timeInput");
+          if (timeInput) {
+            timeInput.focus();
+          }
+        } else {
+          popup.style.display = "none";
         }
-      } else {
-        popup.style.display = "none";
+      };
+      updateOverlayPosition();
+
+      if (!listenersAdded) {
+        window.addEventListener("resize", updateOverlayPosition);
+        videoElement.addEventListener("resize", updateOverlayPosition)
+        listenersAdded = true;
       }
     }
+
   }
 
   window.onresize = function () {
@@ -89,7 +96,6 @@ console.log("content.js");
   color: white;
   font-size: 24px;
   padding: 10px;
-  width: 10vw;
   padding: .5em;
   outline: none;
   font-family: Arial, sans-serif;
@@ -145,22 +151,6 @@ console.log("content.js");
   align-items: center;
 `;
 
-  let link_button_style_dis = `
-  width: 30px;
-  height: 30px;
-  line-height: 20px;
-  padding: 0;
-  border: none;
-  background: linear-gradient(0deg, rgba(100,100,100,1) 0%, rgba(173, 173, 173,1) 100%);
-  cursor: pointer;
-  border-radius: 5px;
-  margin-left: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  opacity: 0.25;
-`;
-
   const rr_logo = chrome.runtime.getURL("assets/rrewind.svg");
   const link_logo = chrome.runtime.getURL("assets/link.svg");
   const time_logo = chrome.runtime.getURL("assets/time.svg");
@@ -172,12 +162,13 @@ console.log("content.js");
     <label for="timeInput"></label>
       <input style="${input_style}" autocomplete="off" type="text" id="timeInput" class="timeInput" name="timeInput" placeholder="00:00:00" value=""/>
       <button style="${button_style}" type="submit" value="jump" name="action">Go</button>
-      <button style="${time_button_style}" type="submit" value="time" name="time"><img src="${time_logo}" style="${time_logo_style}"/></button>
+      <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"><img src="${time_logo}" style="${time_logo_style}"/></button>
       <button style="${
         domain.includes("youtube") ? link_button_style : "display: none;"
-      }" type="submit" value="link" name="link"><img src="${link_logo}" style="${link_logo_style}"/></button>
+      }" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
     </form>
-  </div>`;
+  </div>
+`;
 
   const popupElement = document.createElement("div");
   popupElement.id = "popup_container";
@@ -196,7 +187,6 @@ console.log("content.js");
   });
 
   function manageTime(e) {
-    // console.log(timeInput);
     const action = e.submitter.value;
     console.log(action);
     if (action === "jump") {
@@ -297,4 +287,48 @@ console.log("content.js");
     },
     true
   );
+
+  tippy("#timeButton", {
+    content: "Copy Timecode",
+    arrow: false,
+    animation: "scale",
+    theme: "translucent",
+    inertia: true,
+  });
+
+  tippy("#linkButton", {
+    content: "Copy Timestamp Link",
+    arrow: false,
+    animation: "scale",
+    theme: "translucent",
+    inertia: true,
+  });
+
+  tippy("#timeButton", {
+    trigger: "click focus",
+    content: "Copied!",
+    arrow: false,
+    animation: "fade",
+    theme: "translucent",
+    duration: 200,
+    onShow(instance) {
+      setTimeout(() => {
+        instance.hide();
+      }, 1000);
+    },
+  });
+
+  tippy("#linkButton", {
+    trigger: "click focus",
+    content: "Copied!",
+    arrow: false,
+    animation: "fade",
+    theme: "translucent",
+    duration: 200,
+    onShow(instance) {
+      setTimeout(() => {
+        instance.hide();
+      }, 1000);
+    },
+  });
 })();
