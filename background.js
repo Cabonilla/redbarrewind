@@ -1,3 +1,4 @@
+// import {copyTextToClipboard} from './utils.js'
 console.log("background.js")
 
 function getActiveTabId(callback) {
@@ -55,12 +56,30 @@ chrome.runtime.onMessage.addListener(async function (
                   .replace("www.", "")
                   .replace("youtube.com", "youtu.be")
                   .replace("watch?v=", "");
-                navigator.clipboard.writeText(
-                  pageUrl + "?feature=shared&t=" + Math.ceil(time)
-                );
+
+                  const handleClick = async (text) => {
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        console.log("Text copied to clipboard:", text);
+                    } catch (err) {
+                        console.error("Error copying text to clipboard:", err);
+                    }
+                };
+            
+                handleClick(pageUrl + "?feature=shared&t=" + Math.ceil(time));
+   
               } else {
                 const pageUrl = window.location.href;
-                navigator.clipboard.writeText(pageUrl);
+                const handleClick = async (time) => {
+                  try {
+                      await navigator.clipboard.writeText(time);
+                      console.log("Text copied to clipboard:", time);
+                  } catch (err) {
+                      console.error("Error copying text to clipboard:", err);
+                  }
+              };
+          
+              handleClick(pageUrl);
               }
             },
             args: [message.time],
@@ -72,7 +91,16 @@ chrome.runtime.onMessage.addListener(async function (
         ? chrome.scripting.executeScript({
             target: { tabId: tabId },
             func: (time) => {
-              navigator.clipboard.writeText(time);
+              const handleClick = async (text) => {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    console.log("Text copied to clipboard:", text);
+                } catch (err) {
+                    console.error("Error copying text to clipboard:", err);
+                }
+            };
+        
+            handleClick(time);
             },
             args: [message.time],
           })

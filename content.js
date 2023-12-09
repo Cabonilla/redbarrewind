@@ -8,17 +8,37 @@ console.log("content.js");
   let listenersAdded = false;
 
   let domain = window.location.href;
+  const observeUrlChange = () => {
+    let oldHref = document.location.href;
+    const body = document.querySelector("body");
+    const observer = new MutationObserver((mutations) => {
+      if (oldHref !== document.location.href) {
+        oldHref = document.location.href;
+        overlayVisibleBool = false;
+        const popup = document.getElementById("rr_overlay");
+        popup.style.display = "none";
+      }
+    });
+    observer.observe(body, { childList: true, subtree: true });
+  };
+
+  window.onload = observeUrlChange;
+  console.log("observing");
 
   function toggleOverlay() {
-    const videoElement = document.getElementsByTagName("video")[0];
+    let videoElement;
+    if (window.location.href.includes("watch")) {
+      videoElement = document.getElementById("movie_player");
+    } else {
+      videoElement = document.getElementsByTagName("video")[0];
+    }
     const popup = document.getElementById("rr_overlay");
 
     if (videoElement && popup) {
       const updateOverlayPosition = () => {
-
         if (overlayVisibleBool) {
           const videoRect = videoElement.getBoundingClientRect();
-          console.log("overlay: ", overlayVisibleBool)
+          console.log("overlay: ", overlayVisibleBool);
           console.log(videoRect);
           popup.style.display = "flex";
           popup.style.position = "absolute";
@@ -28,7 +48,7 @@ console.log("content.js");
           popup.style.width = videoRect.width + "px";
           popup.style.height = videoRect.height + "px";
 
-          popup.style.zIndex = 9999;
+          popup.style.zIndex = 25;
 
           popup.style.justifyContent = "center";
           popup.style.alignItems = "center";
@@ -45,21 +65,32 @@ console.log("content.js");
       updateOverlayPosition();
 
       if (!listenersAdded && overlayVisibleBool) {
-        window.addEventListener("resize", updateOverlayPosition);
-        videoElement.addEventListener("resize", updateOverlayPosition)
-        listenersAdded = true;
+        const onresize = (dom_elem, callback) => {
+          const resizeObserver = new ResizeObserver(() => callback());
+          resizeObserver.observe(dom_elem);
+        };
+
+        onresize(videoElement, function () {
+          const videoRect = videoElement.getBoundingClientRect();
+          popup.style.left = videoRect.left + "px";
+          popup.style.bottom = videoRect.bottom + "px";
+          popup.style.top = videoRect.top + "px";
+          popup.style.width = videoRect.width + "px";
+          popup.style.height = videoRect.height + "px";
+          popup.style.width = videoRect.width + "px";
+          popup.style.height = videoRect.height + "px";
+        });
       }
     }
-
   }
 
   let overlay_style = `
-  display: none; 
-  position: fixed; 
-  top: 0; 
-  right: 0; 
-  bottom: 0; 
-  left: 0; 
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   background-color: rgba(0, 0, 0, 0.5);
   clear: both;
 `;
@@ -67,8 +98,7 @@ console.log("content.js");
   let image_style = `
   width: 200px;
   height: auto;
-  margin-top: -50px;
-  margin-bottom: -15px;
+  padding: 15px;
 `;
 
   let link_logo_style = `
@@ -263,11 +293,16 @@ console.log("content.js");
   document.addEventListener("keydown", function (event) {
     // Check if CTRL + ` is pressed
     if (event.ctrlKey && event.altKey) {
-      document.getElementById("timeInput").value = "";
-      console.log("TOGGLE ACTIVATED!");
-      overlayVisibleBool = !overlayVisibleBool;
-      console.log("overlay: ", overlayVisibleBool);
-      toggleOverlay();
+      if (
+        window.location.href.includes("watch") ||
+        window.location.href.includes("open")
+      ) {
+        document.getElementById("timeInput").value = "";
+        console.log("TOGGLE ACTIVATED!");
+        overlayVisibleBool = !overlayVisibleBool;
+        console.log("overlay: ", overlayVisibleBool);
+        toggleOverlay();
+      }
     }
   });
 
