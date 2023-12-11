@@ -1,5 +1,5 @@
 // import {copyTextToClipboard} from './utils.js'
-console.log("background.js")
+console.log("background.js");
 
 function getActiveTabId(callback) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -17,7 +17,7 @@ chrome.runtime.onMessage.addListener(async function (
 ) {
   getActiveTabId((tabId) => {
     if (message.command === "jumpToTime") {
-      console.log("message sent: jumpToTime");
+      // console.log("message sent: jumpToTime");
       chrome.runtime?.id
         ? chrome.scripting.executeScript(
             {
@@ -25,7 +25,7 @@ chrome.runtime.onMessage.addListener(async function (
               func: (time) => {
                 const videoElement = document.querySelector("video");
                 if (videoElement) {
-                  console.log("total time: ", time);
+                  // console.log("total time: ", time);
                   videoElement.currentTime = time;
                 }
               },
@@ -38,10 +38,10 @@ chrome.runtime.onMessage.addListener(async function (
                   chrome.runtime.lastError
                 );
               } else {
-                console.log(
-                  "Background script: Script executed successfully:",
-                  result
-                );
+                // console.log(
+                //   "Background script: Script executed successfully:",
+                //   result
+                // );
               }
             }
           )
@@ -56,51 +56,54 @@ chrome.runtime.onMessage.addListener(async function (
                   .replace("www.", "")
                   .replace("youtube.com", "youtu.be")
                   .replace("watch?v=", "");
-
-                  const handleClick = async (text) => {
-                    try {
-                        await navigator.clipboard.writeText(text);
-                        console.log("Text copied to clipboard:", text);
-                    } catch (err) {
-                        console.error("Error copying text to clipboard:", err);
-                    }
+                document.getElementById("linkButton").focus();
+                const handleClick = async (text) => {
+                  try {
+                    await navigator.clipboard.writeText(text).then(() => {
+                      console.log("Copied!");
+                    });
+                  } catch (err) {
+                    console.error("Error Copying Text:", err);
+                  }
                 };
-            
+
                 handleClick(pageUrl + "?feature=shared&t=" + Math.ceil(time));
-   
               } else {
                 const pageUrl = window.location.href;
-                const handleClick = async (time) => {
+                document.getElementById("linkButton").focus();
+                const handleClick = async (text) => {
                   try {
-                      await navigator.clipboard.writeText(time);
-                      console.log("Text copied to clipboard:", time);
+                    await navigator.clipboard.writeText(text).then(() => {
+                      console.log("Copied!");
+                    });
                   } catch (err) {
-                      console.error("Error copying text to clipboard:", err);
+                    console.error("Error Copying Text:", err);
                   }
-              };
-          
-              handleClick(pageUrl);
+                };
+
+                handleClick(pageUrl);
               }
             },
             args: [message.time],
           })
         : null;
     } else if (message.command === "copyTime") {
-      console.log("time, copied");
+      // console.log("time, copied");
       chrome.runtime?.id
         ? chrome.scripting.executeScript({
             target: { tabId: tabId },
             func: (time) => {
               const handleClick = async (text) => {
                 try {
-                    await navigator.clipboard.writeText(text);
-                    console.log("Text copied to clipboard:", text);
+                  await navigator.clipboard.writeText(text).then(() => {
+                    console.log("Copied!");
+                  });
                 } catch (err) {
-                    console.error("Error copying text to clipboard:", err);
+                  console.error("Error Copying Text:", err);
                 }
-            };
-        
-            handleClick(time);
+              };
+
+              handleClick(time);
             },
             args: [message.time],
           })

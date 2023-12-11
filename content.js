@@ -1,4 +1,4 @@
-console.log("content.js");
+// console.log("content.js");
 
 (function () {
   if (window.hasRun === true) return true;
@@ -23,7 +23,7 @@ console.log("content.js");
   };
 
   window.onload = observeUrlChange;
-  console.log("observing");
+  // console.log("observing");
 
   function toggleOverlay() {
     let videoElement;
@@ -38,8 +38,8 @@ console.log("content.js");
       const updateOverlayPosition = () => {
         if (overlayVisibleBool) {
           const videoRect = videoElement.getBoundingClientRect();
-          console.log("overlay: ", overlayVisibleBool);
-          console.log(videoRect);
+          // console.log("overlay: ", overlayVisibleBool);
+          // console.log(videoRect);
           popup.style.display = "flex";
           popup.style.position = "absolute";
           popup.style.left = videoRect.left + "px";
@@ -185,7 +185,7 @@ console.log("content.js");
     <label for="timeInput"></label>
       <input style="${input_style}" autocomplete="off" type="text" id="timeInput" class="timeInput" name="timeInput" placeholder="00:00:00" value=""/>
       <button style="${button_style}" type="submit" value="jump" name="action">Go</button>
-      <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"><img src="${time_logo}" style="${time_logo_style}"/></button>
+      <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"}><img src="${time_logo}" style="${time_logo_style}"/></button>
       <button style="${
         domain.includes("youtube") ? link_button_style : "display: none;"
       }" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
@@ -199,22 +199,22 @@ console.log("content.js");
   popupElement.innerHTML = overlay;
   document.body.appendChild(popupElement);
 
-  console.log("Plugged in.");
+  // console.log("Plugged in.");
 
   const jumpForm = document.getElementById("jumpForm");
 
   jumpForm.addEventListener("submit", function (e) {
     e.preventDefault();
-    console.log("submitting jump");
+    // console.log("submitting jump");
     manageTime(e);
   });
 
   function manageTime(e) {
     const action = e.submitter.value;
-    console.log(action);
+    // console.log(action);
     if (action === "jump") {
       const timeInput = document.getElementById("timeInput").value.split(":");
-      console.log(timeInput);
+      // console.log(timeInput);
       tl = timeInput.length;
 
       let hoursInput, minutesInput, secondsInput, totalSeconds;
@@ -247,15 +247,20 @@ console.log("content.js");
       const videoElement = document.querySelector("video");
       let totalSeconds = videoElement.currentTime;
       if (domain.includes("youtube")) {
-        chrome.runtime?.id
-          ? chrome.runtime.sendMessage({
-              command: "getLink",
-              time: totalSeconds,
-            })
-          : null;
+        const pageUrl = window.location.href
+          .replace("www.", "")
+          .replace("youtube.com", "youtu.be")
+          .replace("watch?v=", "");
+        // chrome.runtime?.id
+        //   ? chrome.runtime.sendMessage({
+        //       command: "getLink",
+        //       time: totalSeconds,
+        //     })
+        //   : null;
       }
     } else if (action === "time") {
-      console.log("TIME STUFF!");
+      // console.log("TIME STUFF!");
+      document.getElementById("timeButton").focus();
       const videoElement = document.querySelector("video");
       let currTime = videoElement.currentTime;
 
@@ -276,19 +281,74 @@ console.log("content.js");
 
       // Example usage:
       const formattedTime = secondsToTime(currTime);
-      console.log(formattedTime);
-
-      chrome.runtime?.id
-        ? chrome.runtime.sendMessage({
-            command: "copyTime",
-            time: formattedTime,
-          })
-        : null;
+      // console.log(formattedTime);
+      // chrome.runtime?.id
+      //   ? chrome.runtime.sendMessage({
+      //       command: "copyTime",
+      //       time: formattedTime,
+      //     })
+      //   : null;
     } else {
-      console.log("nothin'");
+      // console.log("nothin'");
       return;
     }
   }
+
+  const handleClick = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text).then(() => {
+        console.log("Copied!");
+      });
+    } catch (err) {
+      console.error("Error Copying Text:", err);
+    }
+  };
+
+  const handleTimeCopy = () => {
+    const videoElement = document.querySelector("video");
+    let currTime = videoElement.currentTime;
+
+    function secondsToTime(seconds) {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const remainingSeconds = Math.floor(seconds % 60);
+
+      const formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(
+        remainingSeconds
+      )}`;
+      return formattedTime;
+    }
+
+    function padZero(num) {
+      return num < 10 ? `0${num}` : num;
+    }
+
+    // Example usage:
+    const paddedTime = secondsToTime(currTime);
+    console.log(paddedTime);
+    return paddedTime;
+  };
+
+  const handleLinkCopy = () => {
+    const videoElement = document.querySelector("video");
+    let totalSeconds = videoElement.currentTime;
+    if (window.location.href.includes("youtube")) {
+      const pageUrl = window.location.href
+        .replace("www.", "")
+        .replace("youtube.com", "youtu.be")
+        .replace("watch?v=", "");
+
+      return pageUrl + "?feature=shared&t=" + Math.ceil(totalSeconds);
+    }
+  };
+
+  document.getElementById("timeButton").addEventListener("click", () => {
+    handleClick(handleTimeCopy());
+  });
+
+  document.getElementById("linkButton").addEventListener("click", () => {
+    handleClick(handleLinkCopy());
+  });
 
   document.addEventListener("keydown", function (event) {
     // Check if CTRL + ` is pressed
@@ -298,9 +358,9 @@ console.log("content.js");
         window.location.href.includes("open")
       ) {
         document.getElementById("timeInput").value = "";
-        console.log("TOGGLE ACTIVATED!");
+        // console.log("TOGGLE ACTIVATED!");
         overlayVisibleBool = !overlayVisibleBool;
-        console.log("overlay: ", overlayVisibleBool);
+        // console.log("overlay: ", overlayVisibleBool);
         toggleOverlay();
       }
     }
