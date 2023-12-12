@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "RedbarRewind",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "Give it a year.",
   "permissions": ["storage", "tabs", "activeTab", "scripting"],
   "host_permissions": ["https://*.youtube.com/*", "https://*.spotify.com/*"],
@@ -19,8 +19,8 @@
   "content_scripts": [
     {
       "matches": ["https://*.youtube.com/*", "https://*.spotify.com/*"],
-      "js": ["popper.min.js", "tippy-bundle.umd.min.js", "clipboard.min.js", "content.js"],
-      "css": ["scale.css", "translucent.css"],
+      "js": ["js/utils.js", "js/overlay_styles.js", "js/popper.min.js", "js/tippy-bundle.umd.min.js", "content.js"],
+      "css": ["css/scale.css", "css/translucent.css"],
       "all_frames": true,
       "run_at": "document_end"
     }

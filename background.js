@@ -1,4 +1,3 @@
-// import {copyTextToClipboard} from './utils.js'
 console.log("background.js");
 
 function getActiveTabId(callback) {
@@ -17,7 +16,6 @@ chrome.runtime.onMessage.addListener(async function (
 ) {
   getActiveTabId((tabId) => {
     if (message.command === "jumpToTime") {
-      // console.log("message sent: jumpToTime");
       chrome.runtime?.id
         ? chrome.scripting.executeScript(
             {
@@ -25,88 +23,20 @@ chrome.runtime.onMessage.addListener(async function (
               func: (time) => {
                 const videoElement = document.querySelector("video");
                 if (videoElement) {
-                  // console.log("total time: ", time);
                   videoElement.currentTime = time;
                 }
               },
-              args: [message.time], // Pass the time parameter
+              args: [message.time],
             },
             (result) => {
               if (chrome.runtime.lastError) {
                 console.error(
                   "Background script: Error executing script in content script:",
-                  chrome.runtime.lastError
+                  result
                 );
-              } else {
-                // console.log(
-                //   "Background script: Script executed successfully:",
-                //   result
-                // );
               }
             }
           )
-        : null;
-    } else if (message.command === "getLink") {
-      chrome.runtime?.id
-        ? chrome.scripting.executeScript({
-            target: { tabId: tabId },
-            func: (time) => {
-              if (window.location.href.includes("youtube")) {
-                const pageUrl = window.location.href
-                  .replace("www.", "")
-                  .replace("youtube.com", "youtu.be")
-                  .replace("watch?v=", "");
-                document.getElementById("linkButton").focus();
-                const handleClick = async (text) => {
-                  try {
-                    await navigator.clipboard.writeText(text).then(() => {
-                      console.log("Copied!");
-                    });
-                  } catch (err) {
-                    console.error("Error Copying Text:", err);
-                  }
-                };
-
-                handleClick(pageUrl + "?feature=shared&t=" + Math.ceil(time));
-              } else {
-                const pageUrl = window.location.href;
-                document.getElementById("linkButton").focus();
-                const handleClick = async (text) => {
-                  try {
-                    await navigator.clipboard.writeText(text).then(() => {
-                      console.log("Copied!");
-                    });
-                  } catch (err) {
-                    console.error("Error Copying Text:", err);
-                  }
-                };
-
-                handleClick(pageUrl);
-              }
-            },
-            args: [message.time],
-          })
-        : null;
-    } else if (message.command === "copyTime") {
-      // console.log("time, copied");
-      chrome.runtime?.id
-        ? chrome.scripting.executeScript({
-            target: { tabId: tabId },
-            func: (time) => {
-              const handleClick = async (text) => {
-                try {
-                  await navigator.clipboard.writeText(text).then(() => {
-                    console.log("Copied!");
-                  });
-                } catch (err) {
-                  console.error("Error Copying Text:", err);
-                }
-              };
-
-              handleClick(time);
-            },
-            args: [message.time],
-          })
         : null;
     }
   });
