@@ -5,6 +5,4 @@ A video overlay for Youtube + Spotify that allows for specific timestamp playbac
 
 Give it a year.™
 
-<video width="640" height="480" controls>
-  <source src="https://github.com/Cabonilla/redbarrewind/assets/12958330/75f08a71-cdb5-4697-9c3d-28a9083825ee" type="video/mp4">
-</video>
+https://github.com/Cabonilla/redbarrewind/assets/12958330/6a69c978-c22c-4f82-bc91-698b63135f3f
