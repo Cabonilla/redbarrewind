@@ -1,4 +1,11 @@
 (function () {
+  let OSName;
+  if (window.navigator.userAgent.indexOf("Mac") != -1) {
+    OSName="Mac/iOS";
+  } else if (window.navigator.userAgent.indexOf("Windows") != -1 || window.navigator.userAgent.indexOf("Linux") != -1) {
+    OSName="Windows";
+  }
+
   if (window.hasRun === true) return true;
   window.hasRun = true;
 
@@ -156,10 +163,20 @@
 
   document.addEventListener("keydown", function (event) {
     // Check for Ctrl (Windows) or Meta (Mac) key
-    const isCtrlKey = event.ctrlKey || event.metaKey;
+    let isCtrlKey;
+    if (OSName === "Mac/iOS") {
+      isCtrlKey = event.metaKey;
+    } else if (OSName === "Windows") {
+      isCtrlKey = event.ctrlKey
+    }
     
-    // Check for Alt (Windows) or Option (Mac) key
-    const isAltKey = event.altKey;
+    // Check for Alt (Windows) or Control (Mac) key
+    let isAltKey;
+    if (OSName === "Mac/iOS") {
+      isAltKey = event.ctrlKey
+    } else if (OSName === "Windows") {
+      isAltKey = event.altKey
+    }
   
     if (isCtrlKey && isAltKey) {
       if (
