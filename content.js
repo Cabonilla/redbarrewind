@@ -154,12 +154,14 @@
     handleClick(handleLinkCopy());
   });
 
-  document.addEventListener("load", () => {
-    console.log(document.fullscreenEnabled)
-  });
-
   document.addEventListener("keydown", function (event) {
-    if (event.ctrlKey && event.altKey) {
+    // Check for Ctrl (Windows) or Meta (Mac) key
+    const isCtrlKey = event.ctrlKey || event.metaKey;
+    
+    // Check for Alt (Windows) or Option (Mac) key
+    const isAltKey = event.altKey;
+  
+    if (isCtrlKey && isAltKey) {
       if (
         window.location.href.includes("watch") ||
         window.location.href.includes("open")
