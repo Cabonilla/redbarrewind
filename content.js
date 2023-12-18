@@ -1,10 +1,15 @@
 (function () {
   let OSName;
   if (window.navigator.userAgent.indexOf("Mac") != -1) {
-    OSName="Mac/iOS";
-  } else if (window.navigator.userAgent.indexOf("Windows") != -1 || window.navigator.userAgent.indexOf("Linux") != -1) {
-    OSName="Windows";
+    OSName = "Mac/iOS";
+  } else if (
+    window.navigator.userAgent.indexOf("Windows") != -1 ||
+    window.navigator.userAgent.indexOf("Linux") != -1
+  ) {
+    OSName = "Windows";
   }
+
+  // let OSName="Mac/iOS";
 
   if (window.hasRun === true) return true;
   window.hasRun = true;
@@ -37,6 +42,7 @@
       videoElement = document.getElementsByTagName("video")[0];
     }
     const popup = document.getElementById("rr_overlay");
+    const container = document.getElementById("popup_container")
 
     if (videoElement && popup) {
       const updateOverlayPosition = () => {
@@ -64,6 +70,7 @@
           popup.style.display = "none";
         }
       };
+
       updateOverlayPosition();
 
       if (!listenersAdded && overlayVisibleBool) {
@@ -90,7 +97,8 @@
   const link_logo = chrome.runtime.getURL("assets/link.svg");
   const time_logo = chrome.runtime.getURL("assets/time.svg");
 
-  const overlay = `
+  const appendOverlay = () => {
+    const overlay = `
   <div id="rr_overlay" style="${overlay_style}">
     <img src="${rr_logo}" style="${image_style}"/>
     <form style="${form_style}" id="jumpForm">
@@ -105,18 +113,83 @@
   </div>
 `;
 
-  const popupElement = document.createElement("div");
-  popupElement.id = "popup_container";
-  popupElement.className = "popup_container";
-  popupElement.innerHTML = overlay;
-  document.body.appendChild(popupElement);
+    const popupElement = document.createElement("div");
+    popupElement.id = "popup_container";
+    popupElement.className = "popup_container";
+    popupElement.style.background = 'transparent';
+    popupElement.innerHTML = overlay;
 
-  const jumpForm = document.getElementById("jumpForm");
+    document.body.appendChild(popupElement);
+  };
 
-  jumpForm.addEventListener("submit", function (e) {
-    e.preventDefault();
-    manageTime(e);
-  });
+  const appendListeners = () => {
+    const jumpForm = document.getElementById("jumpForm");
+
+    jumpForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      console.log("FORM SUBMITTED!")
+      manageTime(e);
+    });
+
+    document.getElementById("timeButton").addEventListener("click", () => {
+      handleClick(handleTimeCopy());
+    });
+
+    document.getElementById("linkButton").addEventListener("click", () => {
+      handleClick(handleLinkCopy());
+    });
+
+    tippy("#timeButton", {
+      content: "Copy Timecode",
+      arrow: false,
+      animation: "scale",
+      theme: "translucent",
+      inertia: true,
+      appendTo: document.getElementById("popup_container")
+    });
+
+    tippy("#linkButton", {
+      content: "Copy Timestamp Link",
+      arrow: false,
+      animation: "scale",
+      theme: "translucent",
+      inertia: true,
+      appendTo: document.getElementById("popup_container")
+    });
+
+    tippy("#timeButton", {
+      trigger: "click focus",
+      content: "Copied!",
+      arrow: false,
+      animation: "fade",
+      theme: "translucent",
+      duration: 200,
+      onShow(instance) {
+        setTimeout(() => {
+          instance.hide();
+        }, 1000);
+      },
+      appendTo: document.getElementById("popup_container")
+    });
+
+    tippy("#linkButton", {
+      trigger: "click focus",
+      content: "Copied!",
+      arrow: false,
+      animation: "fade",
+      theme: "translucent",
+      duration: 200,
+      onShow(instance) {
+        setTimeout(() => {
+          instance.hide();
+        }, 1000);
+      },
+      appendTo: document.getElementById("popup_container")
+    });
+  };
+
+  appendOverlay();
+  appendListeners();
 
   function manageTime(e) {
     const action = e.submitter.value;
@@ -153,13 +226,25 @@
     }
   }
 
-  document.getElementById("timeButton").addEventListener("click", () => {
-    handleClick(handleTimeCopy());
-  });
+  function addCustomStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+      #rr_overlay:fullscreen::backdrop {
+        background-color: rgba(0, 0, 0, 0.0) !important;
+        /* Add any other styles you need for the backdrop */
+      }
+    `;
+  
+    document.head.appendChild(style);
+  }
+  
+  // Call the function to add custom styles
+  addCustomStyles();
 
-  document.getElementById("linkButton").addEventListener("click", () => {
-    handleClick(handleLinkCopy());
-  });
+  // Key command debug.
+  // document.addEventListener("keydown", function (event) {
+  //   console.log(event)
+  // });
 
   document.addEventListener("keydown", function (event) {
     // Check for Ctrl (Windows) or Meta (Mac) key
@@ -167,24 +252,40 @@
     if (OSName === "Mac/iOS") {
       isCtrlKey = event.metaKey;
     } else if (OSName === "Windows") {
-      isCtrlKey = event.ctrlKey
+      isCtrlKey = event.ctrlKey;
     }
-    
+
     // Check for Alt (Windows) or Control (Mac) key
     let isAltKey;
     if (OSName === "Mac/iOS") {
-      isAltKey = event.ctrlKey
+      isAltKey = event.ctrlKey;
     } else if (OSName === "Windows") {
-      isAltKey = event.altKey
+      isAltKey = event.altKey;
     }
-  
+
     if (isCtrlKey && isAltKey) {
       if (
         window.location.href.includes("watch") ||
         window.location.href.includes("open")
       ) {
-        document.getElementById("timeInput").value = "";
         overlayVisibleBool = !overlayVisibleBool;
+
+        const overlayDiv = document.getElementById("rr_overlay");
+        const backdropElement = document.getElementsByClassName("VideoFullscreenMode")[0]
+
+        if (!overlayDiv) {
+          appendOverlay()
+          appendListeners();
+        }
+
+        if (document.fullscreenElement && overlayVisibleBool && window.location.href.includes("spotify")) {
+          backdropElement.parentElement.appendChild(overlayDiv)
+          overlayDiv.style.zIndex = 9999;
+          document.getElementById("rr_overlay").style.zIndex = 10000;
+          appendListeners();
+        }
+
+        document.getElementById("timeInput").value = "";
         toggleOverlay();
       }
     }
@@ -199,48 +300,5 @@
     },
     true
   );
-
-  tippy("#timeButton", {
-    content: "Copy Timecode",
-    arrow: false,
-    animation: "scale",
-    theme: "translucent",
-    inertia: true,
-  });
-
-  tippy("#linkButton", {
-    content: "Copy Timestamp Link",
-    arrow: false,
-    animation: "scale",
-    theme: "translucent",
-    inertia: true,
-  });
-
-  tippy("#timeButton", {
-    trigger: "click focus",
-    content: "Copied!",
-    arrow: false,
-    animation: "fade",
-    theme: "translucent",
-    duration: 200,
-    onShow(instance) {
-      setTimeout(() => {
-        instance.hide();
-      }, 1000);
-    },
-  });
-
-  tippy("#linkButton", {
-    trigger: "click focus",
-    content: "Copied!",
-    arrow: false,
-    animation: "fade",
-    theme: "translucent",
-    duration: 200,
-    onShow(instance) {
-      setTimeout(() => {
-        instance.hide();
-      }, 1000);
-    },
-  });
 })();
+
