@@ -16,6 +16,7 @@
 
   let overlayVisibleBool = false;
   let listenersAdded = false;
+  let listenerOverlay = false;
 
   let domain = window.location.href;
   const observeUrlChange = () => {
@@ -42,7 +43,7 @@
       videoElement = document.getElementsByTagName("video")[0];
     }
     const popup = document.getElementById("rr_overlay");
-    const container = document.getElementById("popup_container")
+    const container = document.getElementById("popup_container");
 
     if (videoElement && popup) {
       const updateOverlayPosition = () => {
@@ -102,7 +103,6 @@
   <div id="rr_overlay" style="${overlay_style}">
     <img src="${rr_logo}" style="${image_style}"/>
     <form style="${form_style}" id="jumpForm">
-    <label for="timeInput"></label>
       <input style="${input_style}" autocomplete="off" type="text" id="timeInput" class="timeInput" name="timeInput" placeholder="00:00:00" value=""/>
       <button style="${button_style}" type="submit" value="jump" name="action">Go</button>
       <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"}><img src="${time_logo}" style="${time_logo_style}"/></button>
@@ -116,7 +116,7 @@
     const popupElement = document.createElement("div");
     popupElement.id = "popup_container";
     popupElement.className = "popup_container";
-    popupElement.style.background = 'transparent';
+    popupElement.style.background = "transparent";
     popupElement.innerHTML = overlay;
 
     document.body.appendChild(popupElement);
@@ -127,7 +127,7 @@
 
     jumpForm.addEventListener("submit", function (e) {
       e.preventDefault();
-      console.log("FORM SUBMITTED!")
+      console.log("FORM SUBMITTED!");
       manageTime(e);
     });
 
@@ -145,7 +145,7 @@
       animation: "scale",
       theme: "translucent",
       inertia: true,
-      appendTo: document.getElementById("popup_container")
+      appendTo: document.getElementById("popup_container"),
     });
 
     tippy("#linkButton", {
@@ -154,7 +154,7 @@
       animation: "scale",
       theme: "translucent",
       inertia: true,
-      appendTo: document.getElementById("popup_container")
+      appendTo: document.getElementById("popup_container"),
     });
 
     tippy("#timeButton", {
@@ -169,7 +169,7 @@
           instance.hide();
         }, 1000);
       },
-      appendTo: document.getElementById("popup_container")
+      appendTo: document.getElementById("popup_container"),
     });
 
     tippy("#linkButton", {
@@ -184,7 +184,7 @@
           instance.hide();
         }, 1000);
       },
-      appendTo: document.getElementById("popup_container")
+      appendTo: document.getElementById("popup_container"),
     });
   };
 
@@ -227,17 +227,16 @@
   }
 
   function addCustomStyles() {
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.textContent = `
       #rr_overlay:fullscreen::backdrop {
-        background-color: rgba(0, 0, 0, 0.0) !important;
-        /* Add any other styles you need for the backdrop */
+        display: none;
       }
     `;
-  
+
     document.head.appendChild(style);
   }
-  
+
   // Call the function to add custom styles
   addCustomStyles();
 
@@ -271,25 +270,46 @@
         overlayVisibleBool = !overlayVisibleBool;
 
         const overlayDiv = document.getElementById("rr_overlay");
-        const backdropElement = document.getElementsByClassName("VideoFullscreenMode")[0]
+        const backdropElement = document.getElementsByClassName(
+          "VideoFullscreenMode"
+        )[0];
 
         if (!overlayDiv) {
-          appendOverlay()
+          appendOverlay();
           appendListeners();
         }
 
-        if (document.fullscreenElement && overlayVisibleBool && window.location.href.includes("spotify")) {
+        if (
+          document.fullscreenElement &&
+          overlayVisibleBool &&
+          window.location.href.includes("spotify")
+        ) {
           backdropElement.parentElement.appendChild(overlayDiv)
-          overlayDiv.style.zIndex = 9999;
-          document.getElementById("rr_overlay").style.zIndex = 10000;
+          overlayDiv.style.zIndex = 2147483647;
+          document.getElementById("rr_overlay").style.zIndex = 2147483647;
           appendListeners();
-        }
+          document.getElementsByClassName("npv-video-overlay")[0].style.opacity = 0
+          listenerOverlay = true
+          // document.getElementById("main").removeEventListener("mousemove", (e) => {e.preventDefault}, { capture: true })
+          console.log(listenerOverlay)
+        } else if (
+          document.fullscreenElement &&
+          !overlayVisibleBool &&
+          window.location.href.includes("spotify")
+        ) {
+
+          console.log(listenerOverlay)
+        } 
 
         document.getElementById("timeInput").value = "";
         toggleOverlay();
       }
     }
   });
+
+  function listener(e) {
+    e.preventDefault()
+  }
 
   document.addEventListener(
     "focusin",
@@ -301,4 +321,3 @@
     true
   );
 })();
-
