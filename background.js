@@ -9,36 +9,33 @@ function getActiveTabId(callback) {
   });
 }
 
-chrome.runtime.onMessage.addListener(async function (
-  message,
-  sender,
-  sendResponse
-) {
+function jumpToTime(time) {
   getActiveTabId((tabId) => {
-    if (message.command === "jumpToTime") {
-      chrome.runtime?.id
-        ? chrome.scripting.executeScript(
-            {
-              target: { tabId: tabId },
-              func: (time) => {
-                const videoElement = document.querySelector("video");
-                if (videoElement) {
-                  videoElement.currentTime = time;
-                }
-              },
-              args: [message.time],
-            },
-            (result) => {
-              if (chrome.runtime.lastError) {
-                console.error(
-                  "Background script: Error executing script in content script:",
-                  result
-                );
-              }
-            }
-          )
-        : null;
-    }
+    chrome.runtime?.id && chrome.scripting.executeScript(
+      {
+        target: { tabId: tabId },
+        func: (time) => {
+          const videoElement = document.querySelector("video");
+          if (videoElement) {
+            videoElement.currentTime = time;
+          }
+        },
+        args: [time],
+      },
+      (result) => handleScriptExecutionResult(result)
+    );
   });
+}
+
+function handleScriptExecutionResult(result) {
+  if (chrome.runtime.lastError) {
+    console.error("Background script: Error executing script in content script:", chrome.runtime.lastError);
+  }
+}
+
+chrome.runtime.onMessage.addListener(async function (message, sender, sendResponse) {
+  if (message.command === "jumpToTime") {
+    jumpToTime(message.time);
+  }
   return true;
 });

@@ -1,5 +1,4 @@
 let overlay_style = `
-display: none; 
 position: fixed;
 inset: 0 !important;
 border: none;
@@ -7,12 +6,15 @@ padding: 0;
 background-color: rgba(0, 0, 0, 0.5);
 top: 0 !important;
 margin: 0 !important;
+opacity: 0;
+transition: opacity .25s cubic-bezier(.25, 0, .3, 1);
 `;
 
 let image_style = `
 width: 200px;
 height: auto;
 padding: 20px;
+box-sizing: border-box;
 `;
 
 let link_logo_style = `

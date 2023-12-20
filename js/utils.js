@@ -1,46 +1,46 @@
-const handleClick = async (text) => {
-  try {
-    await navigator.clipboard.writeText(text).then(() => {
+const handleClick = (text) => {
+  navigator.clipboard
+    .writeText(text)
+    .then(() => {
       console.log("Copied!");
+    })
+    .catch((err) => {
+      console.error("Error Copying Text:", err);
     });
-  } catch (err) {
-    console.error("Error Copying Text:", err);
-  }
 };
 
 const handleTimeCopy = () => {
   const videoElement = document.querySelector("video");
-  let currTime = videoElement.currentTime;
-
-  function secondsToTime(seconds) {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-
-    const formattedTime = `${padZero(hours)}:${padZero(minutes)}:${padZero(
-      remainingSeconds
-    )}`;
-    return formattedTime;
-  }
-
-  function padZero(num) {
-    return num < 10 ? `0${num}` : num;
-  }
-
+  const currTime = videoElement.currentTime;
   const paddedTime = secondsToTime(currTime);
-  console.log(paddedTime);
+  console.log("Copied:", paddedTime);
   return paddedTime;
 };
 
 const handleLinkCopy = () => {
   const videoElement = document.querySelector("video");
-  let totalSeconds = videoElement.currentTime;
+  const totalSeconds = Math.ceil(videoElement.currentTime);
+
   if (window.location.href.includes("youtube")) {
     const pageUrl = window.location.href
       .replace("www.", "")
       .replace("youtube.com", "youtu.be")
       .replace("watch?v=", "");
 
-    return pageUrl + "?feature=shared&t=" + Math.ceil(totalSeconds);
+    const timestampLink = `${pageUrl}?feature=shared&t=${totalSeconds}`;
+    console.log("Copied Timestamp Link:", timestampLink);
+    return timestampLink;
   }
 };
+
+function secondsToTime(seconds) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainingSeconds = Math.floor(seconds % 60);
+
+  return `${padZero(hours)}:${padZero(minutes)}:${padZero(remainingSeconds)}`;
+}
+
+function padZero(num) {
+  return num < 10 ? `0${num}` : num;
+}
