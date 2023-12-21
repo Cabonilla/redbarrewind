@@ -22,10 +22,16 @@
   };
 
   document.addEventListener("DOMContentLoaded", observeUrlChange);
+  const lines = chrome.runtime.getURL("assets/drawn_lines.svg");
 
   function addDialogStyles() {
     const style = document.createElement("style");
     style.textContent = `
+      @font-face {
+        font-family: 'MartianMono';
+        src: url(chrome-extension://${chrome.runtime.id}/assets/MartianMono.ttf);
+      }
+
       dialog::backdrop {
         position: absolute;
         top: 0px;
@@ -49,6 +55,10 @@
         opacity: 0;
         display: none;
       }    
+
+      #timeInput::selection {
+        background: rgba(251, 54, 14, .75);
+      }
     `;
 
     document.head.appendChild(style);
@@ -270,8 +280,8 @@
           appendTippy();
         }
 
-        document.getElementById("timeInput").value = "";
         toggleOverlay();
+        document.getElementById("timeInput").value = "";
       }
     }
   }
