@@ -141,6 +141,23 @@
   const link_logo = chrome.runtime.getURL("assets/link.svg");
   const time_logo = chrome.runtime.getURL("assets/time.svg");
 
+//   const overlay2 = `
+//   <dialog id="rr_overlay" style="${overlay_style}">
+//     <img src="${rr_logo}" style="${image_style}"/>
+//     <form style="${form_style}" id="jumpForm" method="dialog">
+//       <div style="position: relative; width: 145px; padding: 10px;">
+//         <input style="${input_style}" autocomplete="off" type="text" id="timeInput" class="timeInput" name="timeInput" placeholder="00:00:00" value=""/>
+//         <img src="${lines}" style="position: absolute; left: 50%; top: 110%; transform: translate(-50%,-50%); width: 100px; height: auto;"/>
+//       </div>  
+//       <button style="${button_style}" type="submit" value="jump" name="action">Go</button>
+//       <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"><img src="${time_logo}" style="${time_logo_style}"/></button>
+//       <button style="${
+//         domain.includes("youtube") ? link_button_style : "display: none;"
+//       }" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
+//     </form>
+//   </dialog>
+// `;
+
   const appendOverlay = () => {
     const overlay = `
   <dialog id="rr_overlay" style="${overlay_style}">
@@ -148,7 +165,7 @@
     <form style="${form_style}" id="jumpForm" method="dialog">
       <input style="${input_style}" autocomplete="off" type="text" id="timeInput" class="timeInput" name="timeInput" placeholder="00:00:00" value=""/>
       <button style="${button_style}" type="submit" value="jump" name="action">Go</button>
-      <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"}><img src="${time_logo}" style="${time_logo_style}"/></button>
+      <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"><img src="${time_logo}" style="${time_logo_style}"/></button>
       <button style="${
         domain.includes("youtube") ? link_button_style : "display: none;"
       }" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>

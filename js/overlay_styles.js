@@ -41,6 +41,7 @@ margin: auto;
 
 let input_style = `
 border: 0px solid;
+height: auto;
 background-color: transparent;
 color: white;
 font-size: 20px;
@@ -49,6 +50,7 @@ font-family: MartianMono, sans-serif;
 z-index: 99999 !important;
 position: relative;
 text-align: center;
+align-content: center;
 width: 145px; 
 padding: 10px;
 `;
@@ -57,6 +59,7 @@ let form_style = `
 display: flex;
 align-items: center;
 justify-content: center;
+position: relative;
 `;
 
 let button_style = `
