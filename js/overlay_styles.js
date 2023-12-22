@@ -28,16 +28,6 @@ let time_logo_style = `
 width: 15px;
 height: auto;
 `;
-let lines_container = `
-position: relative;
-
-`
-let lines_style = `
-position: absolute;
-top: 0;
-left: 0;
-margin: auto;
-`
 
 let input_style = `
 border: 0px solid;

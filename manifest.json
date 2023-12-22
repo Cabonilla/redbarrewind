@@ -32,7 +32,6 @@
         "assets/redbarrewind.svg",
         "assets/link.svg",
         "assets/time.svg",
-        "assets/drawn_lines.svg",
         "assets/MartianMono.ttf"
       ],
       "matches": ["https://*.youtube.com/*", "https://*.spotify.com/*"]
