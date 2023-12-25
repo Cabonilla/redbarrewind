@@ -47,9 +47,10 @@ top: -25px;
 
 let buttons_style = `
 display: flex;
-justify-content: center;
+justify-content: space-between;
 align-items: center;
-margin-top: 5px;
+margin-top: 2px;
+width: 100%;
 `
 
 let link_logo_style = `
@@ -69,7 +70,7 @@ border: 0px solid;
 height: auto;
 background-color: transparent;
 color: #dedcdc;;
-font-size: 55px;
+font-size: 57px;
 outline: none;
 font-family: DotGothic, sans-serif;
 font-weight: 400;
@@ -117,7 +118,6 @@ border: none;
 background: ${redMeta};
 cursor: pointer;
 border-radius: 100%;
-margin-left: 15px;
 display: flex;
 justify-content: center;
 align-items: center;
@@ -133,7 +133,6 @@ border: none;
 background: ${redMeta};
 cursor: pointer;
 border-radius: 100%;
-margin-left: 15px;
 display: flex;
 justify-content: center;
 align-items: center;
