@@ -22,14 +22,28 @@
   };
 
   document.addEventListener("DOMContentLoaded", observeUrlChange);
-  const lines = chrome.runtime.getURL("assets/drawn_lines.svg");
 
   function addDialogStyles() {
     const style = document.createElement("style");
     style.textContent = `
       @font-face {
-        font-family: 'MartianMono';
-        src: url(chrome-extension://${chrome.runtime.id}/assets/MartianMono.ttf);
+        font-family: 'DotGothic';
+        src: url(chrome-extension://${chrome.runtime.id}/assets/DotGothic.ttf);
+      }
+
+      @font-face {
+        font-family: 'Grischel';
+        src: url(chrome-extension://${chrome.runtime.id}/assets/Grischel.ttf);
+      }
+
+      @font-face {
+        font-family: 'HelNeuMed';
+        src: url(chrome-extension://${chrome.runtime.id}/assets/HelNeuMed.otf);
+      }
+
+      @font-face {
+        font-family: 'HelNeuMedIt';
+        src: url(chrome-extension://${chrome.runtime.id}/assets/HelNeuMedIt.otf);
       }
 
       dialog::backdrop {
@@ -47,7 +61,7 @@
       }
 
       #timeInput::placeholder {
-        color: rgba(255,255,255,0.5);
+        color: rgba(222, 220, 220, .5);
       }
 
       dialog:not([open]) {
@@ -57,7 +71,29 @@
       }    
 
       #timeInput::selection {
-        background: rgba(251, 54, 14, .75);
+        background: rgba(252, 255, 255, .25);
+      }
+
+      #linkButton:hover {
+        box-shadow: 0 1px 1px ${redMeta},
+        0 0 2px ${redMeta},
+        0 0 4px ${redMeta},
+        0 0 8px ${redMeta},
+        0 0 16px ${redMeta}
+      }
+      #timeButton:hover {
+        box-shadow: 0 1px 1px ${redMeta},
+        0 0 2px ${redMeta},
+        0 0 4px ${redMeta},
+        0 0 8px ${redMeta},
+        0 0 16px ${redMeta}
+      }
+      #submitButton:hover {
+        box-shadow: 0 1px 1px ${redMeta},
+        0 0 2px ${redMeta},
+        0 0 4px ${redMeta},
+        0 0 8px ${redMeta},
+        0 0 16px ${redMeta}
       }
     `;
 
@@ -137,39 +173,30 @@
     }
   }
 
-  const rr_logo = chrome.runtime.getURL("assets/rrewind.svg");
-  const link_logo = chrome.runtime.getURL("assets/link.svg");
-  const time_logo = chrome.runtime.getURL("assets/time.svg");
-
-//   const overlay2 = `
-//   <dialog id="rr_overlay" style="${overlay_style}">
-//     <img src="${rr_logo}" style="${image_style}"/>
-//     <form style="${form_style}" id="jumpForm" method="dialog">
-//       <div style="position: relative; width: 145px; padding: 10px;">
-//         <input style="${input_style}" autocomplete="off" type="text" id="timeInput" class="timeInput" name="timeInput" placeholder="00:00:00" value=""/>
-//         <img src="${lines}" style="position: absolute; left: 50%; top: 110%; transform: translate(-50%,-50%); width: 100px; height: auto;"/>
-//       </div>  
-//       <button style="${button_style}" type="submit" value="jump" name="action">Go</button>
-//       <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"><img src="${time_logo}" style="${time_logo_style}"/></button>
-//       <button style="${
-//         domain.includes("youtube") ? link_button_style : "display: none;"
-//       }" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
-//     </form>
-//   </dialog>
-// `;
+  const rr_logo = chrome.runtime.getURL("assets/RedbarLogo.svg");
+  const link_logo = chrome.runtime.getURL("assets/link_8bit.svg");
+  const time_logo = chrome.runtime.getURL("assets/clock_8bit.svg");
 
   const appendOverlay = () => {
     const overlay = `
   <dialog id="rr_overlay" style="${overlay_style}">
-    <img src="${rr_logo}" style="${image_style}"/>
+    <div id="rr_container" style="${rr_container}" data-tilt data-tilt-glare data-tilt-max-glare="0.8">
+    <div class="redbar_title" style="${redbar_title}">
+      <img src="${rr_logo}" style="${image_style}"/>
+      <h1 class="rewind_text" style="${rewind_text}">Rewind®</h1>
+    </div>
     <form style="${form_style}" id="jumpForm" method="dialog">
       <input style="${input_style}" autocomplete="off" type="text" id="timeInput" class="timeInput" name="timeInput" placeholder="00:00:00" value=""/>
-      <button style="${button_style}" type="submit" value="jump" name="action">Go</button>
-      <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"><img src="${time_logo}" style="${time_logo_style}"/></button>
-      <button style="${
-        domain.includes("youtube") ? link_button_style : "display: none;"
-      }" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
+      <div class="button_group" style="${buttons_style}">
+        <button style="${button_style}" id="submitButton" type="submit" value="jump" name="action"><span style="font-family: DotGothic; font-size: 20px; color: #dedcdc;">→</span></button>
+        <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"><img src="${time_logo}" style="${time_logo_style}"/></button>
+        <button style="${
+          domain.includes("youtube") ? link_button_style : "display: none;"
+        }" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
+      </div>
     </form>
+    <p style="margin-top: 10px; font-family: HelNeuMed; font-size: 8px; color: #FF2424;">© 2023 ALL RIGHTS RESERVED. <span style="font-family: HelNeuMedIt">GIVE IT A DOWNLOAD.</span></p>
+    </div>
   </dialog>
 `;
 
@@ -205,6 +232,7 @@
       theme: "translucent",
       inertia: true,
       appendTo: document.getElementById("jumpForm"),
+      zIndex: 1000
     };
 
     tippy("#timeButton", { ...tippyConfig, content: "Copy Timecode" });
