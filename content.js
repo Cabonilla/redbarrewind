@@ -7,6 +7,7 @@
 
   // let OSName="Mac/iOS";
   let isMoveMutationObserverApplied = false;
+  let spotifyOverlayBackground = true;
 
   const observeUrlChange = () => {
     let oldHref = document.location.href;
@@ -161,12 +162,9 @@
           popupStyle.top = videoRect.top + "px";
           popupStyle.width = videoRect.width + "px";
           popupStyle.height = videoRect.height + "px";
-
-          // Your additional logic for fullscreen and modalMode here
         });
 
         if (!isMoveMutationObserverApplied) {
-          // Observe changes in relevant attributes affecting the video element's position
           resizeAndMoveObserver.observe(videoElement, {
             attributes: true,
             attributeFilter: ["style", "class", "anyOtherAttribute"],
@@ -233,6 +231,10 @@
       .addEventListener("click", function (e) {
         if (this === e.target) {
           document.getElementById("timeInput").focus();
+          if (spotifyOverlayBackground && window.location.href.includes("spotify") && document.fullscreenElement) {
+            document.getElementsByClassName("npv-video-overlay")[0].style.opacity = 0
+          }
+          spotifyOverlayBackground = false
         }
       });
 
@@ -349,7 +351,9 @@
           appendListeners();
           appendTippy();
         }
-
+        if (!spotifyOverlayBackground) {
+          spotifyOverlayBackground = true
+        }
         toggleOverlay();
         document.getElementById("timeInput").value = "";
       }

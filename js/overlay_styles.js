@@ -9,7 +9,7 @@ top: 0 !important;
 margin: 0 !important;
 opacity: 0;
 outline: none;
-background: linear-gradient(rgba(0,0,0,.85), rgba(0,0,0,0));
+background: linear-gradient(rgba(0,0,0,.75), rgba(0,0,0,0));
 transition: opacity .25s cubic-bezier(.25, 0, .3, 1) !important;
 `;
 
@@ -91,7 +91,7 @@ flex-direction: column;
 let button_style = `
 font-family: Dots, sans-serif;
 width: 140px;
-height: 35px;
+height: 36px;
 line-height: 20px;
 padding: 0;
 border: none;
@@ -107,8 +107,8 @@ align-items: center;
 `;
 
 let link_button_style = `
-width: 35px;
-height: 35px;
+width: 36px;
+height: 36px;
 line-height: 20px;
 padding: 0;
 border: none;
@@ -121,8 +121,8 @@ align-items: center;
 transition: box-shadow .15s ease-in-out;
 `;
 let time_button_style = `
-height: 35px;
-width: 35px;
+height: 36px;
+width: 36px;
 line-height: 20px;
 padding: 0;
 border: none;
