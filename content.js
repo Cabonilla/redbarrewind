@@ -8,17 +8,18 @@
   let domain = window.location.href;
 
   // let OSName="Mac/iOS";
+  let isMoveMutationObserverApplied = false;
 
   const observeUrlChange = () => {
     let oldHref = document.location.href;
     const body = document.querySelector("body");
-    const observer = new MutationObserver((mutations) => {
+    const URLObserver = new MutationObserver((mutations) => {
       if (oldHref !== document.location.href) {
         oldHref = document.location.href;
         overlayVisibleBool.value = false;
       }
     });
-    observer.observe(body, { childList: true, subtree: true });
+    URLObserver.observe(body, { childList: true, subtree: true });
   };
 
   document.addEventListener("DOMContentLoaded", observeUrlChange);
@@ -53,6 +54,7 @@
         bottom: 0px;
         left: 0px;
         background: rgba(0, 0, 0, 0.0);
+        transition: all .25s cubic-bezier(.25, 0, .3, 1) !important;
       }
 
       dialog:-internal-dialog-in-top-layer {
@@ -139,16 +141,17 @@
         } else {
           console.log("CLOSING!");
           modalMode = "close";
-          popup[modalMode]();
           popup.style.opacity = 0;
+          setTimeout(() => {
+            popup[modalMode]();
+          }, 250)
         }
       };
 
       updateOverlayPosition();
 
       if (overlayVisibleBool.value) {
-        const resizeObserver = new ResizeObserver(() => {
-          const popup = document.getElementById("rr_overlay");
+        const resizeAndMoveObserver = new MutationObserver(() => {
           const videoRect = videoElement.getBoundingClientRect();
           const popupStyle = popup.style;
 
@@ -159,16 +162,22 @@
           popupStyle.width = videoRect.width + "px";
           popupStyle.height = videoRect.height + "px";
 
-          if (document.fullscreenElement && modalMode === "show") {
-            popup.close();
-            popup.showModal();
-          } else if (!document.fullscreenElement && modalMode === "showModal") {
-            popup.close();
-            popup.show();
-          }
+          // Your additional logic for fullscreen and modalMode here
         });
 
-        resizeObserver.observe(videoElement);
+        if (!isMoveMutationObserverApplied) {
+          // Observe changes in relevant attributes affecting the video element's position
+          resizeAndMoveObserver.observe(videoElement, { attributes: true, attributeFilter: ["style", "class", "anyOtherAttribute"] });
+          isMutationObserverApplied = true;
+        }
+      }
+
+      if (document.fullscreenElement && modalMode === "show") {
+        popup.close();
+        popup.showModal();
+      } else if (!document.fullscreenElement && modalMode === "showModal") {
+        popup.close();
+        popup.show();
       }
     }
   }
@@ -179,26 +188,24 @@
 
   const appendOverlay = () => {
     const overlay = `
-  <dialog id="rr_overlay" style="${overlay_style}">
-    <div id="rr_container" style="${rr_container}" data-tilt data-tilt-glare data-tilt-max-glare="0.8">
-    <div class="redbar_title" style="${redbar_title}">
-      <img src="${rr_logo}" style="${image_style}"/>
-      <h1 class="rewind_text" style="${rewind_text}">Rewind®</h1>
-    </div>
-    <form style="${form_style}" id="jumpForm" method="dialog">
-      <input style="${input_style}" autocomplete="off" type="text" id="timeInput" class="timeInput" name="timeInput" placeholder="00:00:00" value=""/>
-      <div class="button_group" style="${buttons_style}">
-        <button style="${button_style}" id="submitButton" type="submit" value="jump" name="action"><span style="font-family: DotGothic; font-size: 20px; color: #dedcdc;">→</span></button>
-        <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"><img src="${time_logo}" style="${time_logo_style}"/></button>
-        <button style="${
-          domain.includes("youtube") ? link_button_style : "display: none;"
-        }" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
+    <dialog id="rr_overlay" style="${overlay_style}">
+      <div id="rr_container" style="${rr_container}" data-tilt data-tilt-glare data-tilt-max-glare="0.8">
+        <div class="redbar_title" style="${redbar_title}">
+          <img src="${rr_logo}" style="${image_style}"/>
+          <h1 class="rewind_text" style="${rewind_text}">Rewind®</h1>
+        </div>
+        <form style="${form_style}" id="jumpForm" method="dialog">
+          <input style="${input_style}" autocomplete="off" type="text" id="timeInput" class="timeInput" name="timeInput" placeholder="00:00:00" value=""/>
+          <div class="button_group" style="${buttons_style}">
+            <button style="${button_style}" id="submitButton" type="submit" value="jump" name="action"><span style="font-family: DotGothic; font-size: 20px; color: #dedcdc;">→</span></button>
+            <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"><img src="${time_logo}" style="${time_logo_style}"/></button>
+            <button style="${link_button_style}" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
+          </div>
+        </form>
+        <p style="margin-top: 10px; font-family: HelNeuMed; font-size: 8px; color: #FF2424;">© 2023 ALL RIGHTS RESERVED. <span style="font-family: HelNeuMedIt">GIVE IT A DOWNLOAD.</span></p>
       </div>
-    </form>
-    <p style="margin-top: 10px; font-family: HelNeuMed; font-size: 8px; color: #FF2424;">© 2023 ALL RIGHTS RESERVED. <span style="font-family: HelNeuMedIt">GIVE IT A DOWNLOAD.</span></p>
-    </div>
-  </dialog>
-`;
+    </dialog>
+  `;
 
     const popupElement = document.createElement("div");
     popupElement.id = "popup_container";
@@ -216,6 +223,12 @@
       manageTime(e);
     });
 
+    document.getElementById("rr_overlay").addEventListener("click", function(e) {
+      if(this === e.target) {
+        document.getElementById("timeInput").focus()
+      }
+  });
+
     document.getElementById("timeButton").addEventListener("click", () => {
       handleClick(handleTimeCopy());
     });
@@ -232,7 +245,7 @@
       theme: "translucent",
       inertia: true,
       appendTo: document.getElementById("jumpForm"),
-      zIndex: 1000
+      zIndex: 1000,
     };
 
     tippy("#timeButton", { ...tippyConfig, content: "Copy Timecode" });

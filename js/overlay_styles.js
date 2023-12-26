@@ -8,9 +8,9 @@ padding: 0;
 top: 0 !important;
 margin: 0 !important;
 opacity: 0;
-transition: opacity .25s cubic-bezier(.25, 0, .3, 1);
 outline: none;
-background-color: transparent;
+background: linear-gradient(rgba(0,0,0,.85), rgba(0,0,0,0));
+transition: opacity .25s cubic-bezier(.25, 0, .3, 1) !important;
 `;
 
 let rr_container = `
@@ -18,9 +18,6 @@ display: flex;
 justify-content: center;
 align-items: center;
 flex-direction: column;
-background-image: linear-gradient(rgba(0,0,0,.75), rgba(0,0,0,0));
-width: 100%;
-height: 100%;
 `
 
 let redbar_title = `
@@ -50,7 +47,7 @@ display: flex;
 justify-content: space-between;
 align-items: center;
 margin-top: 2px;
-width: 100%;
+width: 250px;
 `
 
 let link_logo_style = `
@@ -70,7 +67,7 @@ border: 0px solid;
 height: auto;
 background-color: transparent;
 color: #dedcdc;;
-font-size: 57px;
+font-size: 55px;
 outline: none;
 font-family: DotGothic, sans-serif;
 font-weight: 400;
@@ -129,7 +126,6 @@ width: 35px;
 line-height: 20px;
 padding: 0;
 border: none;
-/* background: linear-gradient(0deg, rgba(255,27,0,1) 0%, rgba(251,75,2,1) 100%); */
 background: ${redMeta};
 cursor: pointer;
 border-radius: 100%;
