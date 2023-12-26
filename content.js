@@ -277,6 +277,31 @@
       e.target.value = inputValue;
     });
 
+    const handleFullscreenChange = () => {
+      const popup = document.getElementById("rr_overlay");
+      if (
+        document.fullscreenElement &&
+        overlayVisibleBool.value &&
+        modalMode !== "showModal"
+      ) {
+        // Video is in fullscreen and modal is not in fullscreen mode
+        popup.close();
+        modalMode = "showModal";
+        console.log("converting to ", modalMode);
+        toggleOverlay();
+      } else if (
+        !document.fullscreenElement &&
+        overlayVisibleBool.value &&
+        modalMode === "showModal"
+      ) {
+        // Video is not in fullscreen and modal is in fullscreen mode
+        popup.close();
+        modalMode = "show";
+        console.log("converting to ", modalMode);
+        toggleOverlay();
+      }
+    };
+
     document.addEventListener("fullscreenchange", handleFullscreenChange);
 
     window.addEventListener('beforeunload', function (event) {
