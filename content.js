@@ -144,7 +144,7 @@
           popup.style.opacity = 0;
           setTimeout(() => {
             popup[modalMode]();
-          }, 250)
+          }, 250);
         }
       };
 
@@ -167,7 +167,10 @@
 
         if (!isMoveMutationObserverApplied) {
           // Observe changes in relevant attributes affecting the video element's position
-          resizeAndMoveObserver.observe(videoElement, { attributes: true, attributeFilter: ["style", "class", "anyOtherAttribute"] });
+          resizeAndMoveObserver.observe(videoElement, {
+            attributes: true,
+            attributeFilter: ["style", "class", "anyOtherAttribute"],
+          });
           isMutationObserverApplied = true;
         }
       }
@@ -195,11 +198,13 @@
           <h1 class="rewind_text" style="${rewind_text}">Rewind®</h1>
         </div>
         <form style="${form_style}" id="jumpForm" method="dialog">
-          <input style="${input_style}" autocomplete="off" type="text" id="timeInput" class="timeInput" name="timeInput" placeholder="00:00:00" value=""/>
+          <input style="${input_style}" autocomplete="off" type="text" id="timeInput" class="timeInput" name="timeInput" placeholder="00:00:00" value="" maxlength="8"/>
           <div class="button_group" style="${buttons_style}">
             <button style="${button_style}" id="submitButton" type="submit" value="jump" name="action"><span style="font-family: DotGothic; font-size: 20px; color: #dedcdc;">→</span></button>
             <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"><img src="${time_logo}" style="${time_logo_style}"/></button>
-            <button ${window.location.href.includes("youtube") ? `` : "disabled"} style="${link_button_style}" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
+            <button ${
+              window.location.href.includes("youtube") ? `` : "disabled"
+            } style="${link_button_style}" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
           </div>
         </form>
         <p style="margin-top: 10px; font-family: HelNeuMed; font-size: 8px; color: #FF2424;">© 2023 ALL RIGHTS RESERVED. <span style="font-family: HelNeuMedIt">GIVE IT A DOWNLOAD.</span></p>
@@ -223,11 +228,13 @@
       manageTime(e);
     });
 
-    document.getElementById("rr_overlay").addEventListener("click", function(e) {
-      if(this === e.target) {
-        document.getElementById("timeInput").focus()
-      }
-  });
+    document
+      .getElementById("rr_overlay")
+      .addEventListener("click", function (e) {
+        if (this === e.target) {
+          document.getElementById("timeInput").focus();
+        }
+      });
 
     document.getElementById("timeButton").addEventListener("click", () => {
       handleClick(handleTimeCopy());
@@ -235,6 +242,12 @@
 
     document.getElementById("linkButton").addEventListener("click", () => {
       handleClick(handleLinkCopy());
+    });
+
+    document.getElementById("timeInput").addEventListener("input", (e) => {
+      let inputValue = e.target.value;
+      inputValue = inputValue.replace(/[^0-9:]/g, "");
+      e.target.value = inputValue;
     });
   };
 
