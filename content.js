@@ -152,7 +152,32 @@
       updateOverlayPosition();
 
       if (overlayVisibleBool.value) {
-        const resizeAndMoveObserver = new MutationObserver(() => {
+        const resizeObserver = new ResizeObserver(() => {
+          const popup = document.getElementById("rr_overlay");
+          const videoRect = videoElement.getBoundingClientRect();
+          const popupStyle = popup.style;
+
+          popupStyle.left = videoRect.left + "px";
+          popupStyle.bottom = videoRect.bottom + "px";
+          popupStyle.right = videoRect.right + "px";
+          popupStyle.top = videoRect.top + "px";
+          popupStyle.width = videoRect.width + "px";
+          popupStyle.height = videoRect.height + "px";
+
+          if (document.fullscreenElement && modalMode === "show" && videoRect) {
+            popup.close();
+            popup.showModal();
+          } else if (
+            !document.fullscreenElement &&
+            modalMode === "showModal" &&
+            videoRect
+          ) {
+            popup.close();
+            popup.show();
+          }
+        });
+
+        const moveObserver = new MutationObserver(() => {
           const videoRect = videoElement.getBoundingClientRect();
           const popupStyle = popup.style;
 
@@ -165,20 +190,14 @@
         });
 
         if (!isMoveMutationObserverApplied) {
-          resizeAndMoveObserver.observe(videoElement, {
+          resizeObserver.observe(videoElement);
+          moveObserver.observe(videoElement, {
             attributes: true,
             attributeFilter: ["style", "class", "anyOtherAttribute"],
           });
-          isMutationObserverApplied = true;
         }
-      }
 
-      if (document.fullscreenElement && modalMode === "show") {
-        popup.close();
-        popup.showModal();
-      } else if (!document.fullscreenElement && modalMode === "showModal") {
-        popup.close();
-        popup.show();
+        isMutationObserverApplied = true;
       }
     }
   }
@@ -231,10 +250,16 @@
       .addEventListener("click", function (e) {
         if (this === e.target) {
           document.getElementById("timeInput").focus();
-          if (spotifyOverlayBackground && window.location.href.includes("spotify") && document.fullscreenElement) {
-            document.getElementsByClassName("npv-video-overlay")[0].style.opacity = 0
+          if (
+            spotifyOverlayBackground &&
+            window.location.href.includes("spotify") &&
+            document.fullscreenElement
+          ) {
+            document.getElementsByClassName(
+              "npv-video-overlay"
+            )[0].style.opacity = 0;
           }
-          spotifyOverlayBackground = false
+          spotifyOverlayBackground = false;
         }
       });
 
@@ -250,6 +275,14 @@
       let inputValue = e.target.value;
       inputValue = inputValue.replace(/[^0-9:]/g, "");
       e.target.value = inputValue;
+    });
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+
+    window.addEventListener('beforeunload', function (event) {
+      const popup = document.getElementById("rr_overlay");
+      popup.style.opacity = 0;
+      popup.close();
     });
   };
 
@@ -352,7 +385,7 @@
           appendTippy();
         }
         if (!spotifyOverlayBackground) {
-          spotifyOverlayBackground = true
+          spotifyOverlayBackground = true;
         }
         toggleOverlay();
         document.getElementById("timeInput").value = "";
