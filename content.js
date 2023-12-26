@@ -5,8 +5,6 @@
   const overlayVisibleBool = { value: false };
   let modalMode;
 
-  let domain = window.location.href;
-
   // let OSName="Mac/iOS";
   let isMoveMutationObserverApplied = false;
 
@@ -54,7 +52,6 @@
         bottom: 0px;
         left: 0px;
         background: rgba(0, 0, 0, 0.0);
-        transition: all .25s cubic-bezier(.25, 0, .3, 1) !important;
       }
 
       dialog:-internal-dialog-in-top-layer {
@@ -82,6 +79,10 @@
         0 0 4px ${redMeta},
         0 0 8px ${redMeta},
         0 0 16px ${redMeta}
+      }
+      #linkButton:disabled {
+        pointer-events: none;
+        opacity: .55;
       }
       #timeButton:hover {
         box-shadow: 0 1px 1px ${redMeta},
@@ -139,7 +140,6 @@
           const timeInput = document.getElementById("timeInput");
           timeInput && timeInput.focus();
         } else {
-          console.log("CLOSING!");
           modalMode = "close";
           popup.style.opacity = 0;
           setTimeout(() => {
@@ -199,7 +199,7 @@
           <div class="button_group" style="${buttons_style}">
             <button style="${button_style}" id="submitButton" type="submit" value="jump" name="action"><span style="font-family: DotGothic; font-size: 20px; color: #dedcdc;">→</span></button>
             <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"><img src="${time_logo}" style="${time_logo_style}"/></button>
-            <button style="${link_button_style}" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
+            <button ${window.location.href.includes("youtube") ? `` : "disabled"} style="${link_button_style}" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
           </div>
         </form>
         <p style="margin-top: 10px; font-family: HelNeuMed; font-size: 8px; color: #FF2424;">© 2023 ALL RIGHTS RESERVED. <span style="font-family: HelNeuMedIt">GIVE IT A DOWNLOAD.</span></p>
@@ -281,7 +281,6 @@
     if (action === "jump") {
       const timeInput = document.getElementById("timeInput").value.split(":");
       tl = timeInput.length;
-      console.log(tl);
 
       let hoursInput = 0,
         minutesInput = 0,
