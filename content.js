@@ -273,7 +273,12 @@
 
     document.getElementById("timeInput").addEventListener("input", (e) => {
       let inputValue = e.target.value;
-      inputValue = inputValue.replace(/[^0-9:]/g, "");
+      inputValue = inputValue.replace(/[^0-9]/g, "");
+      inputValue = inputValue.replace(/(\d{0,2}):?(\d{0,2})?:?(\d{0,2})?/, function(match, p1, p2, p3) {
+        console.log(p1, p2, p3)
+        return (p1 || '') + (p2 ? ':' + (p2.length > 1 ? p2 : p2) : '') + (p3 ? ':' + (p3.length > 1 ? p3 : p3) : '');
+      });
+  
       e.target.value = inputValue;
     });
 
