@@ -61,7 +61,7 @@
       }
 
       #timeInput::placeholder {
-        color: rgba(222, 220, 220, .5);
+        color: rgba(222, 220, 220, .25);
       }
 
       dialog:not([open]) {
@@ -99,7 +99,37 @@
         0 0 8px ${redMeta},
         0 0 16px ${redMeta}
       }
+
+      @media only screen and (min-width: 2000px) {
+          #rr_container {
+            transform: scale(1.15)
+          }
+        }
+
+        @media only screen and (min-width: 2500px) {
+          #rr_container {
+            transform: scale(1.40)
+          }
+        }
+    
+        @media only screen and (min-width: 3000px) {
+          #rr_container {
+            transform: scale(1.60)
+          }
+        }
     `;
+
+    // @media only screen and (min-width: 2000px) {
+    //   #rr_container {
+    //     transform: scale(1.25)
+    //   }
+    // }
+
+    // @media only screen and (min-width: 3000px) {
+    //   #rr_container {
+    //     transform: scale(1.35)
+    //   }
+    // }
 
     document.head.appendChild(style);
   }
@@ -275,7 +305,6 @@
       let inputValue = e.target.value;
       inputValue = inputValue.replace(/[^0-9]/g, "");
       inputValue = inputValue.replace(/(\d{0,2}):?(\d{0,2})?:?(\d{0,2})?/, function(match, p1, p2, p3) {
-        console.log(p1, p2, p3)
         return (p1 || '') + (p2 ? ':' + (p2.length > 1 ? p2 : p2) : '') + (p3 ? ':' + (p3.length > 1 ? p3 : p3) : '');
       });
   
@@ -350,9 +379,9 @@
     showCopiedTippy("#linkButton");
   };
 
-  appendOverlay();
-  appendListeners();
-  appendTippy();
+  // appendOverlay();
+  // appendListeners();
+  // appendTippy();
 
   function manageTime(e) {
     const action = e.submitter.value;
