@@ -1,4 +1,4 @@
-console.log("background.js");
+// console.log("background.js");
 
 function getActiveTabId(callback) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {

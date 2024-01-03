@@ -23,27 +23,51 @@
 
   document.addEventListener("DOMContentLoaded", observeUrlChange);
 
+  let fontLinks = {
+    "DotGothic": `chrome-extension://${chrome.runtime.id}/assets/DotGothic.ttf`,
+    "Grischel": `chrome-extension://${chrome.runtime.id}/assets/Grischel.ttf`,
+    "HelNeuMed": `chrome-extension://${chrome.runtime.id}/assets/HelNeuMed.otf`,
+    "HelNeuMedIt": `chrome-extension://${chrome.runtime.id}/assets/HelNeuMedIt.otf`,
+  }
+  
+  function addPreloadStyle() {
+    addPreloadFont(fontLinks['DotGothic']);
+    addPreloadFont(fontLinks['Grischel']);
+    addPreloadFont(fontLinks['HelNeuMed']);
+    addPreloadFont(fontLinks['HelNeuMedIt']);
+
+    function addPreloadFont(href) {
+        const linkElement = document.createElement('link');
+        linkElement.rel = 'preload';
+        linkElement.href = href;
+        linkElement.as = 'font';
+        linkElement.crossOrigin = '';
+
+        document.head.appendChild(linkElement);
+    }
+  }
+
   function addDialogStyles() {
     const style = document.createElement("style");
     style.textContent = `
       @font-face {
         font-family: 'DotGothic';
-        src: url(chrome-extension://${chrome.runtime.id}/assets/DotGothic.ttf);
+        src: url(${fontLinks['DotGothic']})
       }
 
       @font-face {
         font-family: 'Grischel';
-        src: url(chrome-extension://${chrome.runtime.id}/assets/Grischel.ttf);
+        src: url(${fontLinks['Grischel']})
       }
 
       @font-face {
         font-family: 'HelNeuMed';
-        src: url(chrome-extension://${chrome.runtime.id}/assets/HelNeuMed.otf);
+        src: url(${fontLinks['HelNeuMed']})
       }
 
       @font-face {
         font-family: 'HelNeuMedIt';
-        src: url(chrome-extension://${chrome.runtime.id}/assets/HelNeuMedIt.otf);
+        src: url(${fontLinks['HelNeuMedIt']})
       }
 
       dialog::backdrop {
@@ -75,23 +99,26 @@
       }
 
       #linkButton:hover {
-        box-shadow: 0 1px 1px ${redMeta},
+        box-shadow: 0 0 1px ${redMeta},
         0 0 2px ${redMeta},
         0 0 4px ${redMeta},
         0 0 8px ${redMeta},
         0 0 16px ${redMeta}
       }
+
       #linkButton:disabled {
         pointer-events: none;
         opacity: .55;
       }
+
       #timeButton:hover {
-        box-shadow: 0 1px 1px ${redMeta},
+        box-shadow: 0 0 1px ${redMeta},
         0 0 2px ${redMeta},
         0 0 4px ${redMeta},
         0 0 8px ${redMeta},
         0 0 16px ${redMeta}
       }
+
       #submitButton:hover {
         box-shadow: 0 1px 1px ${redMeta},
         0 0 2px ${redMeta},
@@ -99,41 +126,12 @@
         0 0 8px ${redMeta},
         0 0 16px ${redMeta}
       }
-
-      @media only screen and (min-width: 2000px) {
-          #rr_container {
-            transform: scale(1.15)
-          }
-        }
-
-        @media only screen and (min-width: 2500px) {
-          #rr_container {
-            transform: scale(1.40)
-          }
-        }
-    
-        @media only screen and (min-width: 3000px) {
-          #rr_container {
-            transform: scale(1.60)
-          }
-        }
     `;
-
-    // @media only screen and (min-width: 2000px) {
-    //   #rr_container {
-    //     transform: scale(1.25)
-    //   }
-    // }
-
-    // @media only screen and (min-width: 3000px) {
-    //   #rr_container {
-    //     transform: scale(1.35)
-    //   }
-    // }
 
     document.head.appendChild(style);
   }
 
+  addPreloadStyle();
   addDialogStyles();
 
   function toggleOverlay() {
@@ -223,7 +221,7 @@
           resizeObserver.observe(videoElement);
           moveObserver.observe(videoElement, {
             attributes: true,
-            attributeFilter: ["style", "class", "anyOtherAttribute"],
+            attributeFilter: ["style", "class"],
           });
         }
 
@@ -254,7 +252,7 @@
             } style="${link_button_style}" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
           </div>
         </form>
-        <p style="margin-top: 10px; font-family: HelNeuMed; font-size: 8px; color: #FF2424;">© 2023 ALL RIGHTS RESERVED. <span style="font-family: HelNeuMedIt">GIVE IT A DOWNLOAD.</span></p>
+        <small style="${small_style}">© 2023 ALL RIGHTS RESERVED. <span style="font-family: HelNeuMedIt">GIVE IT A DOWNLOAD.</span></small>
       </div>
     </dialog>
   `;
@@ -288,6 +286,9 @@
             document.getElementsByClassName(
               "npv-video-overlay"
             )[0].style.opacity = 0;
+            document.getElementsByClassName(
+              "npv-what-is-playing"
+            )[0].style.opacity = 0;
           }
           spotifyOverlayBackground = false;
         }
@@ -304,10 +305,17 @@
     document.getElementById("timeInput").addEventListener("input", (e) => {
       let inputValue = e.target.value;
       inputValue = inputValue.replace(/[^0-9]/g, "");
-      inputValue = inputValue.replace(/(\d{0,2}):?(\d{0,2})?:?(\d{0,2})?/, function(match, p1, p2, p3) {
-        return (p1 || '') + (p2 ? ':' + (p2.length > 1 ? p2 : p2) : '') + (p3 ? ':' + (p3.length > 1 ? p3 : p3) : '');
-      });
-  
+      inputValue = inputValue.replace(
+        /(\d{0,2}):?(\d{0,2})?:?(\d{0,2})?/,
+        function (match, p1, p2, p3) {
+          return (
+            (p1 || "") +
+            (p2 ? ":" + (p2.length > 1 ? p2 : p2) : "") +
+            (p3 ? ":" + (p3.length > 1 ? p3 : p3) : "")
+          );
+        }
+      );
+
       e.target.value = inputValue;
     });
 
@@ -321,7 +329,7 @@
         // Video is in fullscreen and modal is not in fullscreen mode
         popup.close();
         modalMode = "showModal";
-        console.log("converting to ", modalMode);
+        // console.log("converting to ", modalMode);
         toggleOverlay();
       } else if (
         !document.fullscreenElement &&
@@ -331,14 +339,14 @@
         // Video is not in fullscreen and modal is in fullscreen mode
         popup.close();
         modalMode = "show";
-        console.log("converting to ", modalMode);
+        // console.log("converting to ", modalMode);
         toggleOverlay();
       }
     };
 
     document.addEventListener("fullscreenchange", handleFullscreenChange);
 
-    window.addEventListener('beforeunload', function (event) {
+    window.addEventListener("beforeunload", function (event) {
       const popup = document.getElementById("rr_overlay");
       popup.style.opacity = 0;
       popup.close();

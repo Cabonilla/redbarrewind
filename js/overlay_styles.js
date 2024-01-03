@@ -13,6 +13,13 @@ background: linear-gradient(rgba(0,0,0,.75), rgba(0,0,0,0));
 transition: opacity .25s cubic-bezier(.25, 0, .3, 1) !important;
 `;
 
+let small_style = `
+margin-top: .5vw; 
+font-family: HelNeuMed; 
+font-size: .40vw; 
+color: #FF2424;
+`
+
 let rr_container = `
 display: flex;
 justify-content: center;
@@ -26,28 +33,27 @@ position: relative;
 
 let rewind_text = `
 font-family: Grischel;
-font-size: 100px;
+font-size: 5vw;
 font-weight: 400;
 color: ${redMeta};
-margin-bottom: -35px;
+margin-bottom: -1.85vw;
 `
 
 let image_style = `
-width: 160px;
+width: 7.75vw;
 height: auto;
 box-sizing: border-box;
 pointer-events: none;
 position: absolute;
 left: 0;
-top: -25px;
+top: -1.25vw;
 `;
 
 let buttons_style = `
 display: flex;
 justify-content: space-between;
 align-items: center;
-margin-top: 2px;
-width: 250px;
+width: 12vw;
 `
 
 let link_logo_style = `
@@ -66,8 +72,8 @@ let input_style = `
 border: 0px solid;
 height: auto;
 background-color: transparent;
-color: #dedcdc;;
-font-size: 55px;
+color: #dedcdc;
+font-size: 2.75vw;
 outline: none;
 font-family: DotGothic, sans-serif;
 font-weight: 400;
@@ -75,9 +81,10 @@ z-index: 40 !important;
 position: relative;
 text-align: center;
 align-content: center;
-width: 250px; 
-letter-spacing: 3px;
+letter-spacing: .15vw;
 caret-color: rgba(0, 0, 0, 0);
+margin: 0;
+padding: 0;
 `;
 
 let form_style = `
@@ -90,8 +97,8 @@ flex-direction: column;
 
 let button_style = `
 font-family: Dots, sans-serif;
-width: 140px;
-height: 36px;
+width: 6vw;
+height: 2vw;
 line-height: 20px;
 padding: 0;
 border: none;
@@ -107,8 +114,8 @@ align-items: center;
 `;
 
 let link_button_style = `
-width: 36px;
-height: 36px;
+width: 2vw;
+height: 2vw;
 line-height: 20px;
 padding: 0;
 border: none;
@@ -120,9 +127,10 @@ justify-content: center;
 align-items: center;
 transition: box-shadow .15s ease-in-out;
 `;
+
 let time_button_style = `
-height: 36px;
-width: 36px;
+height: 2vw;
+width: 2vw;
 line-height: 20px;
 padding: 0;
 border: none;
