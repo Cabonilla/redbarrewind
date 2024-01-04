@@ -70,6 +70,7 @@ filter: invert(73%) sepia(28%) saturate(8%) hue-rotate(314deg) brightness(106%) 
 
 let input_style = `
 border: 0px solid;
+width: 13vw;
 height: auto;
 background-color: transparent;
 color: #dedcdc;

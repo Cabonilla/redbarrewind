@@ -148,6 +148,8 @@
       const updateOverlayPosition = () => {
         if (overlayVisibleBool.value) {
           const videoRect = videoElement.getBoundingClientRect();
+          console.log(videoElement)
+          console.log(videoRect)
           const popupStyle = popup.style;
 
           popupStyle.display = "flex";
@@ -391,9 +393,9 @@
     showCopiedTippy("#linkButton");
   };
 
-  // appendOverlay();
-  // appendListeners();
-  // appendTippy();
+  appendOverlay();
+  appendListeners();
+  appendTippy();
 
   function manageTime(e) {
     const action = e.submitter.value;
