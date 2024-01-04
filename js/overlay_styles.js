@@ -57,13 +57,13 @@ width: 12vw;
 `
 
 let link_logo_style = `
-width: 12px;
+width: .65vw;
 height: auto;
 filter: invert(73%) sepia(28%) saturate(8%) hue-rotate(314deg) brightness(106%) contrast(116%);
 `;
 
 let time_logo_style = `
-width: 12px;
+width: .65vw;
 height: auto;
 filter: invert(73%) sepia(28%) saturate(8%) hue-rotate(314deg) brightness(106%) contrast(116%);
 `;
@@ -96,7 +96,7 @@ flex-direction: column;
 `;
 
 let button_style = `
-font-family: Dots, sans-serif;
+font-family: DotGothic, sans-serif;
 width: 6vw;
 height: 2vw;
 line-height: 20px;
@@ -104,8 +104,8 @@ padding: 0;
 border: none;
 background: ${redMeta};
 cursor: pointer;
-border-radius: 20px;
-font-size: 12px;
+border-radius: 3vw;
+font-size: 1vw;
 color: white;
 transition: box-shadow .15s ease-in-out;
 display: flex;

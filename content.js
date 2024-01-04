@@ -24,26 +24,26 @@
   document.addEventListener("DOMContentLoaded", observeUrlChange);
 
   let fontLinks = {
-    "DotGothic": `chrome-extension://${chrome.runtime.id}/assets/DotGothic.ttf`,
-    "Grischel": `chrome-extension://${chrome.runtime.id}/assets/Grischel.ttf`,
-    "HelNeuMed": `chrome-extension://${chrome.runtime.id}/assets/HelNeuMed.otf`,
-    "HelNeuMedIt": `chrome-extension://${chrome.runtime.id}/assets/HelNeuMedIt.otf`,
-  }
-  
+    DotGothic: `chrome-extension://${chrome.runtime.id}/assets/DotGothic.ttf`,
+    Grischel: `chrome-extension://${chrome.runtime.id}/assets/Grischel.ttf`,
+    HelNeuMed: `chrome-extension://${chrome.runtime.id}/assets/HelNeuMed.otf`,
+    HelNeuMedIt: `chrome-extension://${chrome.runtime.id}/assets/HelNeuMedIt.otf`,
+  };
+
   function addPreloadStyle() {
-    addPreloadFont(fontLinks['DotGothic']);
-    addPreloadFont(fontLinks['Grischel']);
-    addPreloadFont(fontLinks['HelNeuMed']);
-    addPreloadFont(fontLinks['HelNeuMedIt']);
+    addPreloadFont(fontLinks["DotGothic"]);
+    addPreloadFont(fontLinks["Grischel"]);
+    addPreloadFont(fontLinks["HelNeuMed"]);
+    addPreloadFont(fontLinks["HelNeuMedIt"]);
 
     function addPreloadFont(href) {
-        const linkElement = document.createElement('link');
-        linkElement.rel = 'preload';
-        linkElement.href = href;
-        linkElement.as = 'font';
-        linkElement.crossOrigin = '';
+      const linkElement = document.createElement("link");
+      linkElement.rel = "preload";
+      linkElement.href = href;
+      linkElement.as = "font";
+      linkElement.crossOrigin = "";
 
-        document.head.appendChild(linkElement);
+      document.head.appendChild(linkElement);
     }
   }
 
@@ -52,22 +52,22 @@
     style.textContent = `
       @font-face {
         font-family: 'DotGothic';
-        src: url(${fontLinks['DotGothic']})
+        src: url(${fontLinks["DotGothic"]})
       }
 
       @font-face {
         font-family: 'Grischel';
-        src: url(${fontLinks['Grischel']})
+        src: url(${fontLinks["Grischel"]})
       }
 
       @font-face {
         font-family: 'HelNeuMed';
-        src: url(${fontLinks['HelNeuMed']})
+        src: url(${fontLinks["HelNeuMed"]})
       }
 
       @font-face {
         font-family: 'HelNeuMedIt';
-        src: url(${fontLinks['HelNeuMedIt']})
+        src: url(${fontLinks["HelNeuMedIt"]})
       }
 
       dialog::backdrop {
@@ -99,11 +99,11 @@
       }
 
       #linkButton:hover {
-        box-shadow: 0 0 1px ${redMeta},
-        0 0 2px ${redMeta},
-        0 0 4px ${redMeta},
-        0 0 8px ${redMeta},
-        0 0 16px ${redMeta}
+        box-shadow: 0 0 .05vw ${redMeta},
+        0 0 .1vw ${redMeta},
+        0 0 .2vw ${redMeta},
+        0 0 .6vw ${redMeta},
+        0 0 .8vw ${redMeta}
       }
 
       #linkButton:disabled {
@@ -112,19 +112,23 @@
       }
 
       #timeButton:hover {
-        box-shadow: 0 0 1px ${redMeta},
-        0 0 2px ${redMeta},
-        0 0 4px ${redMeta},
-        0 0 8px ${redMeta},
-        0 0 16px ${redMeta}
+        box-shadow: 0 0 .05vw ${redMeta},
+        0 0 .1vw ${redMeta},
+        0 0 .2vw ${redMeta},
+        0 0 .6vw ${redMeta},
+        0 0 .8vw ${redMeta}
       }
 
       #submitButton:hover {
-        box-shadow: 0 1px 1px ${redMeta},
-        0 0 2px ${redMeta},
-        0 0 4px ${redMeta},
-        0 0 8px ${redMeta},
-        0 0 16px ${redMeta}
+        box-shadow: 0 0 .05vw ${redMeta},
+        0 0 .1vw ${redMeta},
+        0 0 .2vw ${redMeta},
+        0 0 .6vw ${redMeta},
+        0 0 .8vw ${redMeta}
+      }
+
+      .tippy-content {
+        font-size: .5vw;
       }
     `;
 
@@ -245,7 +249,7 @@
         <form style="${form_style}" id="jumpForm" method="dialog">
           <input style="${input_style}" autocomplete="off" type="text" id="timeInput" class="timeInput" name="timeInput" placeholder="00:00:00" value="" maxlength="8"/>
           <div class="button_group" style="${buttons_style}">
-            <button style="${button_style}" id="submitButton" type="submit" value="jump" name="action"><span style="font-family: DotGothic; font-size: 20px; color: #dedcdc;">→</span></button>
+            <button style="${button_style}" id="submitButton" type="submit" value="jump" name="action"><span>→</span></button>
             <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"><img src="${time_logo}" style="${time_logo_style}"/></button>
             <button ${
               window.location.href.includes("youtube") ? `` : "disabled"
@@ -357,8 +361,8 @@
     const tippyConfig = {
       arrow: false,
       animation: "scale",
-      theme: "translucent",
-      inertia: true,
+      theme: "translucent size",
+      inertia: true, 
       appendTo: document.getElementById("jumpForm"),
       zIndex: 1000,
     };
@@ -372,7 +376,7 @@
         content: "Copied!",
         arrow: false,
         animation: "fade",
-        theme: "translucent",
+        theme: "translucent size",
         duration: 200,
         onShow(instance) {
           setTimeout(() => {
