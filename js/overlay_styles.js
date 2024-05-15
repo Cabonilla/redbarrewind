@@ -46,7 +46,7 @@ box-sizing: border-box;
 pointer-events: none;
 position: absolute;
 left: 0;
-top: -1.25vw;
+top: ${window.location.href.includes("redbar") ? '2vw;' : '-1.25vw'}
 `;
 
 let buttons_style = `

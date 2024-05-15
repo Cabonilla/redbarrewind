@@ -4,6 +4,7 @@
     : "Windows/Linux";
   const overlayVisibleBool = { value: false };
   let modalMode;
+  let videoEl;
 
   // let OSName="Mac/iOS";
   let isMoveMutationObserverApplied = false;
@@ -139,17 +140,33 @@
   addDialogStyles();
 
   function toggleOverlay() {
-    const videoElement = window.location.href.includes("watch")
+    const videoSizing = window.location.href.includes("watch")
       ? document.getElementById("movie_player")
+      : window.location.href.includes("redbar")
+      ? // ? videojs('player').el()
+        document.getElementById("player_html5_api")
       : document.querySelector("video");
     const popup = document.getElementById("rr_overlay");
+    // videoEl = videoSizing;
 
-    if (videoElement && popup) {
+    if (document.getElementById('player')) {
+      // var existingPlayer = videojs('player')
+      // var pl = existingPlayer.el();
+      videoEl = document.getElementById('player');
+      console.log(videoEl.firstChild)
+    }
+
+  // Get the parent element of the existing player
+    
+    // console.log(videoSizing);
+    // console.log(window.location.href);
+
+    if (videoSizing && popup) {
       const updateOverlayPosition = () => {
         if (overlayVisibleBool.value) {
-          const videoRect = videoElement.getBoundingClientRect();
-          console.log(videoElement)
-          console.log(videoRect)
+          const videoRect = videoSizing.getBoundingClientRect();
+          // console.log(videoSizing);
+          // console.log(videoRect);
           const popupStyle = popup.style;
 
           popupStyle.display = "flex";
@@ -188,7 +205,7 @@
       if (overlayVisibleBool.value) {
         const resizeObserver = new ResizeObserver(() => {
           const popup = document.getElementById("rr_overlay");
-          const videoRect = videoElement.getBoundingClientRect();
+          const videoRect = videoSizing.getBoundingClientRect();
           const popupStyle = popup.style;
 
           popupStyle.left = videoRect.left + "px";
@@ -212,7 +229,7 @@
         });
 
         const moveObserver = new MutationObserver(() => {
-          const videoRect = videoElement.getBoundingClientRect();
+          const videoRect = videoSizing.getBoundingClientRect();
           const popupStyle = popup.style;
 
           popupStyle.left = videoRect.left + "px";
@@ -224,8 +241,8 @@
         });
 
         if (!isMoveMutationObserverApplied) {
-          resizeObserver.observe(videoElement);
-          moveObserver.observe(videoElement, {
+          resizeObserver.observe(videoSizing);
+          moveObserver.observe(videoSizing, {
             attributes: true,
             attributeFilter: ["style", "class"],
           });
@@ -243,7 +260,7 @@
   const appendOverlay = () => {
     const overlay = `
     <dialog id="rr_overlay" style="${overlay_style}">
-      <div id="rr_container" style="${rr_container}" data-tilt data-tilt-glare data-tilt-max-glare="0.8">
+      <div id="rr_container" style="${rr_container}"> 
         <div class="redbar_title" style="${redbar_title}">
           <img src="${rr_logo}" style="${image_style}"/>
           <h1 class="rewind_text" style="${rewind_text}">Rewind®</h1>
@@ -262,7 +279,7 @@
       </div>
     </dialog>
   `;
-
+  
     const popupElement = document.createElement("div");
     popupElement.id = "popup_container";
     popupElement.className = "popup_container";
@@ -364,7 +381,7 @@
       arrow: false,
       animation: "scale",
       theme: "translucent size",
-      inertia: true, 
+      inertia: true,
       appendTo: document.getElementById("jumpForm"),
       zIndex: 1000,
     };
@@ -427,6 +444,7 @@
         chrome.runtime.sendMessage({
           command: "jumpToTime",
           time: totalSeconds,
+          // vid: videoEl
         });
 
       overlayVisibleBool.value = false;
@@ -435,9 +453,9 @@
   }
 
   // Key command debug.
-  // document.addEventListener("keydown", function (event) {
-  //   console.log(event)
-  // });
+  document.addEventListener("keydown", function (event) {
+    // console.log(event);
+  });
 
   function handleKeydown(event) {
     const isCtrlKey = OSName === "Mac/iOS" ? event.metaKey : event.ctrlKey;
@@ -446,11 +464,14 @@
     if (isCtrlKey && isAltKey) {
       if (
         window.location.href.includes("watch") ||
-        window.location.href.includes("open")
+        window.location.href.includes("open") ||
+        window.location.href.includes("redbarradio")
       ) {
         overlayVisibleBool.value = !overlayVisibleBool.value;
 
         const overlayDiv = document.getElementById("rr_overlay");
+        // const player = videojs('player');
+        // console.log(videoEl)
 
         if (!overlayDiv) {
           appendOverlay();

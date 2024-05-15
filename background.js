@@ -15,10 +15,19 @@ function jumpToTime(time) {
       {
         target: { tabId: tabId },
         func: (time) => {
-          const videoElement = document.querySelector("video");
-          if (videoElement) {
-            videoElement.currentTime = time;
-          }
+          // document.addEventListener('DOMContentLoaded', () => {
+            const videoElement = document.querySelector("video")
+            // videoElement = vid
+
+            console.log(videoElement)
+
+            console.log("JUMPING! ", videoElement, " ", window.location.href.includes("redbar"))
+
+            if (videoElement) {
+              videoElement.currentTime = time;
+              console.log(videoElement.currentTime);
+            }
+          // });
         },
         args: [time],
       },
@@ -35,7 +44,7 @@ function handleScriptExecutionResult(result) {
 
 chrome.runtime.onMessage.addListener(async function (message, sender, sendResponse) {
   if (message.command === "jumpToTime") {
-    jumpToTime(message.time);
+    jumpToTime(message.time, message.vid);
   }
   return true;
 });
