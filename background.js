@@ -1,5 +1,3 @@
-// console.log("background.js");
-
 function getActiveTabId(callback) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     if (tabs && tabs.length > 0) {
@@ -15,19 +13,20 @@ function jumpToTime(time) {
       {
         target: { tabId: tabId },
         func: (time) => {
-          // document.addEventListener('DOMContentLoaded', () => {
-            const videoElement = document.querySelector("video")
-            // videoElement = vid
+          let videoElement;
+          const iframe = document.querySelector('iframe');
 
-            console.log(videoElement)
+          if (window.location.href.includes("redbarradio.net/shows") && iframe) {
+            const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+            videoElement = iframeDocument.querySelector('video');
+          } else {
+            videoElement = document.querySelector("video")
+          }
 
-            console.log("JUMPING! ", videoElement, " ", window.location.href.includes("redbar"))
+          if (videoElement) {
+            videoElement.currentTime = time;
+          }
 
-            if (videoElement) {
-              videoElement.currentTime = time;
-              console.log(videoElement.currentTime);
-            }
-          // });
         },
         args: [time],
       },

@@ -4,25 +4,11 @@
     : "Windows/Linux";
   const overlayVisibleBool = { value: false };
   let modalMode;
-  let videoEl;
 
-  // let OSName="Mac/iOS";
   let isMoveMutationObserverApplied = false;
   let spotifyOverlayBackground = true;
 
-  const observeUrlChange = () => {
-    let oldHref = document.location.href;
-    const body = document.querySelector("body");
-    const URLObserver = new MutationObserver((mutations) => {
-      if (oldHref !== document.location.href) {
-        oldHref = document.location.href;
-        overlayVisibleBool.value = false;
-      }
-    });
-    URLObserver.observe(body, { childList: true, subtree: true });
-  };
-
-  document.addEventListener("DOMContentLoaded", observeUrlChange);
+  let staticHref = document.location.href;
 
   let fontLinks = {
     DotGothic: `chrome-extension://${chrome.runtime.id}/assets/DotGothic.ttf`,
@@ -131,6 +117,7 @@
       .tippy-content {
         font-size: .5vw;
       }
+      
     `;
 
     document.head.appendChild(style);
@@ -140,33 +127,21 @@
   addDialogStyles();
 
   function toggleOverlay() {
-    const videoSizing = window.location.href.includes("watch")
+    const videoSizing = document.location.href.includes("youtube.com/watch")
       ? document.getElementById("movie_player")
-      : window.location.href.includes("redbar")
-      ? // ? videojs('player').el()
-        document.getElementById("player_html5_api")
-      : document.querySelector("video");
+      : staticHref.includes("redbarradio.net/shows/")
+        ? document.getElementById("player_html5_api")
+        : document.querySelector("video");
     const popup = document.getElementById("rr_overlay");
-    // videoEl = videoSizing;
 
     if (document.getElementById('player')) {
-      // var existingPlayer = videojs('player')
-      // var pl = existingPlayer.el();
       videoEl = document.getElementById('player');
-      console.log(videoEl.firstChild)
     }
-
-  // Get the parent element of the existing player
-    
-    // console.log(videoSizing);
-    // console.log(window.location.href);
 
     if (videoSizing && popup) {
       const updateOverlayPosition = () => {
         if (overlayVisibleBool.value) {
           const videoRect = videoSizing.getBoundingClientRect();
-          // console.log(videoSizing);
-          // console.log(videoRect);
           const popupStyle = popup.style;
 
           popupStyle.display = "flex";
@@ -206,6 +181,10 @@
         const resizeObserver = new ResizeObserver(() => {
           const popup = document.getElementById("rr_overlay");
           const videoRect = videoSizing.getBoundingClientRect();
+          if (!videoRect) {
+            overlayVisibleBool.value = false;
+            toggleOverlay();
+          }
           const popupStyle = popup.style;
 
           popupStyle.left = videoRect.left + "px";
@@ -230,6 +209,10 @@
 
         const moveObserver = new MutationObserver(() => {
           const videoRect = videoSizing.getBoundingClientRect();
+          if (!videoRect) {
+            overlayVisibleBool.value = false;
+            toggleOverlay();
+          }
           const popupStyle = popup.style;
 
           popupStyle.left = videoRect.left + "px";
@@ -266,20 +249,19 @@
           <h1 class="rewind_text" style="${rewind_text}">Rewind®</h1>
         </div>
         <form style="${form_style}" id="jumpForm" method="dialog">
-          <input style="${input_style}" autocomplete="off" type="text" id="timeInput" class="timeInput" name="timeInput" placeholder="00:00:00" value="" maxlength="8"/>
+          <input style="${input_style}" autocomplete="off" type="text" id="timeInput" class="timeInput" name="timeInput" placeholder="00:00:00" maxlength="8"/>
           <div class="button_group" style="${buttons_style}">
             <button style="${button_style}" id="submitButton" type="submit" value="jump" name="action"><span>→</span></button>
             <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"><img src="${time_logo}" style="${time_logo_style}"/></button>
-            <button ${
-              window.location.href.includes("youtube") ? `` : "disabled"
-            } style="${link_button_style}" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
+            <button ${staticHref.includes("youtube.com/watch") ? `` : "disabled"
+      } style="${link_button_style}" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
           </div>
         </form>
         <small style="${small_style}">© 2023 ALL RIGHTS RESERVED. <span style="font-family: HelNeuMedIt">GIVE IT A DOWNLOAD.</span></small>
       </div>
     </dialog>
   `;
-  
+
     const popupElement = document.createElement("div");
     popupElement.id = "popup_container";
     popupElement.className = "popup_container";
@@ -303,7 +285,7 @@
           document.getElementById("timeInput").focus();
           if (
             spotifyOverlayBackground &&
-            window.location.href.includes("spotify") &&
+            staticHref.includes("spotify") &&
             document.fullscreenElement
           ) {
             document.getElementsByClassName(
@@ -349,20 +331,16 @@
         overlayVisibleBool.value &&
         modalMode !== "showModal"
       ) {
-        // Video is in fullscreen and modal is not in fullscreen mode
         popup.close();
         modalMode = "showModal";
-        // console.log("converting to ", modalMode);
         toggleOverlay();
       } else if (
         !document.fullscreenElement &&
         overlayVisibleBool.value &&
         modalMode === "showModal"
       ) {
-        // Video is not in fullscreen and modal is in fullscreen mode
         popup.close();
         modalMode = "show";
-        // console.log("converting to ", modalMode);
         toggleOverlay();
       }
     };
@@ -425,14 +403,11 @@
         secondsInput = 0;
 
       if (tl === 1) {
-        // Only seconds
         secondsInput = parseInt(timeInput[0], 10) || 0;
       } else if (tl === 2) {
-        // Minutes and seconds
         minutesInput = parseInt(timeInput[0], 10) || 0;
         secondsInput = parseInt(timeInput[1], 10) || 0;
       } else if (tl === 3) {
-        // Hours, minutes, and seconds
         hoursInput = parseInt(timeInput[0], 10) || 0;
         minutesInput = parseInt(timeInput[1], 10) || 0;
         secondsInput = parseInt(timeInput[2], 10) || 0;
@@ -444,7 +419,6 @@
         chrome.runtime.sendMessage({
           command: "jumpToTime",
           time: totalSeconds,
-          // vid: videoEl
         });
 
       overlayVisibleBool.value = false;
@@ -452,38 +426,70 @@
     }
   }
 
-  // Key command debug.
-  document.addEventListener("keydown", function (event) {
-    // console.log(event);
-  });
-
   function handleKeydown(event) {
     const isCtrlKey = OSName === "Mac/iOS" ? event.metaKey : event.ctrlKey;
     const isAltKey = OSName === "Mac/iOS" ? event.ctrlKey : event.altKey;
 
     if (isCtrlKey && isAltKey) {
       if (
-        window.location.href.includes("watch") ||
-        window.location.href.includes("open") ||
-        window.location.href.includes("redbarradio")
+        staticHref.includes("youtube.com/watch") ||
+        staticHref.includes("open.spotify") ||
+        staticHref.includes("redbarradio")
       ) {
         overlayVisibleBool.value = !overlayVisibleBool.value;
 
         const overlayDiv = document.getElementById("rr_overlay");
-        // const player = videojs('player');
-        // console.log(videoEl)
 
         if (!overlayDiv) {
           appendOverlay();
           appendListeners();
           appendTippy();
         }
+
+        if (overlayVisibleBool.value && staticHref.includes("redbarradio")) {
+          document.addEventListener('keydown', customKeydownHandler, true);
+        } else {
+          document.removeEventListener('keydown', customKeydownHandler, true);
+        }
+
         if (!spotifyOverlayBackground) {
           spotifyOverlayBackground = true;
         }
+
         toggleOverlay();
         document.getElementById("timeInput").value = "";
       }
+    }
+  }
+
+  function customKeydownHandler(event) {
+    const overlayInput = document.getElementById('timeInput');
+    const isNumberKey = (event.which >= 48 && event.which <= 57) || (event.which >= 96 && event.which <= 105);
+
+    if (isNumberKey) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      overlayInput.focus();
+
+      const numberKey = event.key;
+
+      if (overlayInput.value.length <= 7) {
+        overlayInput.value += numberKey;
+      } else {
+        return;
+      }
+
+      const inputEvent = new Event('input', { false: true });
+      overlayInput.dispatchEvent(inputEvent);
+    }
+  }
+
+  function removeOverlay() {
+    const overlayDiv = document.getElementById("rr_overlay");
+    if (overlayDiv) {
+      overlayVisibleBool.value = false;
+      toggleOverlay()
     }
   }
 
@@ -498,4 +504,9 @@
     },
     true
   );
+
+  window.addEventListener('popstate', removeOverlay);
+
+  window.addEventListener('load', removeOverlay);
+
 })();
