@@ -8,8 +8,6 @@
   let isMoveMutationObserverApplied = false;
   let spotifyOverlayBackground = true;
 
-  let staticHref = document.location.href;
-
   let fontLinks = {
     DotGothic: `chrome-extension://${chrome.runtime.id}/assets/DotGothic.ttf`,
     Grischel: `chrome-extension://${chrome.runtime.id}/assets/Grischel.ttf`,
@@ -129,7 +127,7 @@
   function toggleOverlay() {
     const videoSizing = document.location.href.includes("youtube.com/watch")
       ? document.getElementById("movie_player")
-      : staticHref.includes("redbarradio.net/shows/")
+      : document.location.href.includes("redbarradio.net/shows/")
         ? document.getElementById("player_html5_api")
         : document.querySelector("video");
     const popup = document.getElementById("rr_overlay");
@@ -253,7 +251,7 @@
           <div class="button_group" style="${buttons_style}">
             <button style="${button_style}" id="submitButton" type="submit" value="jump" name="action"><span>→</span></button>
             <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"><img src="${time_logo}" style="${time_logo_style}"/></button>
-            <button ${staticHref.includes("youtube.com/watch") ? `` : "disabled"
+            <button ${document.location.href.includes("youtube.com/watch") ? `` : "disabled"
       } style="${link_button_style}" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
           </div>
         </form>
@@ -285,7 +283,7 @@
           document.getElementById("timeInput").focus();
           if (
             spotifyOverlayBackground &&
-            staticHref.includes("spotify") &&
+            document.location.href.includes("spotify") &&
             document.fullscreenElement
           ) {
             document.getElementsByClassName(
@@ -432,9 +430,9 @@
 
     if (isCtrlKey && isAltKey) {
       if (
-        staticHref.includes("youtube.com/watch") ||
-        staticHref.includes("open.spotify") ||
-        staticHref.includes("redbarradio")
+        document.location.href.includes("youtube.com/watch") ||
+        document.location.href.includes("open.spotify") ||
+        document.location.href.includes("redbarradio")
       ) {
         overlayVisibleBool.value = !overlayVisibleBool.value;
 
@@ -446,7 +444,7 @@
           appendTippy();
         }
 
-        if (overlayVisibleBool.value && staticHref.includes("redbarradio")) {
+        if (overlayVisibleBool.value && document.location.href.includes("redbarradio")) {
           document.addEventListener('keydown', customKeydownHandler, true);
         } else {
           document.removeEventListener('keydown', customKeydownHandler, true);
