@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "RedbarRewind",
-  "version": "1.3.1",
+  "version": "2.0.0",
   "description": "Give it a year.",
   "permissions": ["activeTab", "scripting"],
   "host_permissions": ["https://*.youtube.com/*", "https://*.spotify.com/*", "https://redbarradio.net/*"],
@@ -19,8 +19,8 @@
   "content_scripts": [
     {
       "matches": ["https://*.youtube.com/*", "https://*.spotify.com/*", "https://*.redbarradio.net/*"],
-      "js": ["js/utils.js", "js/overlay_styles.js", "js/popper.min.js", "js/tippy-bundle.umd.min.js", "js/vanilla-tilt.min.js", "js/video.min.js", "content.js"],
-      "css": ["css/scale.css", "css/translucent.css"],
+      "js": ["js/utils.js", "js/overlay_styles.js", "js/popper.min.js", "js/tippy-bundle.umd.min.js", "js/vanilla-tilt.min.js", "js/simplebar.min.js", "content.js"],
+      "css": ["css/scale.css", "css/translucent.css", "css/simplebar.css"],
       "all_frames": true,
       "run_at": "document_end"
     }
@@ -32,10 +32,14 @@
         "assets/redbarrewind.svg",
         "assets/link_8bit.svg",
         "assets/clock_8bit.svg",
+        "assets/add.svg",
+        "assets/bookmark_8bit.svg",
         "assets/DotGothic.ttf",
         "assets/Grischel.ttf",
         "assets/HelNeuMed.otf",
-        "assets/HelNeuMedIt.otf"
+        "assets/HelNeuMedIt.otf",
+        "assets/IBMPlexMono-Medium.ttf",
+        "assets/bookmarks.json"
       ],
       "matches": ["https://*.youtube.com/*", "https://*.spotify.com/*", "https://*.redbarradio.net/*"]
     }

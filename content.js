@@ -3,6 +3,8 @@
     ? "Mac/iOS"
     : "Windows/Linux";
   const overlayVisibleBool = { value: false };
+  const overlayBookmarkBool = { value: false };
+  const bookmarkStor = []
   let modalMode;
 
   let isMoveMutationObserverApplied = false;
@@ -12,6 +14,7 @@
     DotGothic: `chrome-extension://${chrome.runtime.id}/assets/DotGothic.ttf`,
     Grischel: `chrome-extension://${chrome.runtime.id}/assets/Grischel.ttf`,
     HelNeuMed: `chrome-extension://${chrome.runtime.id}/assets/HelNeuMed.otf`,
+    IBMPlexMono: `chrome-extension://${chrome.runtime.id}/assets/IBMPlexMono-Medium.ttf`,
     HelNeuMedIt: `chrome-extension://${chrome.runtime.id}/assets/HelNeuMedIt.otf`,
   };
 
@@ -20,6 +23,7 @@
     addPreloadFont(fontLinks["Grischel"]);
     addPreloadFont(fontLinks["HelNeuMed"]);
     addPreloadFont(fontLinks["HelNeuMedIt"]);
+    addPreloadFont(fontLinks["IBMPlexMono"]);
 
     function addPreloadFont(href) {
       const linkElement = document.createElement("link");
@@ -37,22 +41,27 @@
     style.textContent = `
       @font-face {
         font-family: 'DotGothic';
-        src: url(${fontLinks["DotGothic"]})
+        src: url(${fontLinks["DotGothic"]});
       }
 
       @font-face {
         font-family: 'Grischel';
-        src: url(${fontLinks["Grischel"]})
+        src: url(${fontLinks["Grischel"]});
       }
 
       @font-face {
         font-family: 'HelNeuMed';
-        src: url(${fontLinks["HelNeuMed"]})
+        src: url(${fontLinks["HelNeuMed"]});
       }
 
       @font-face {
         font-family: 'HelNeuMedIt';
-        src: url(${fontLinks["HelNeuMedIt"]})
+        src: url(${fontLinks["HelNeuMedIt"]});
+      }
+
+      @font-face {
+        font-family: 'IBMPlexMono';
+        src: url(${fontLinks["IBMPlexMono"]});
       }
 
       dialog::backdrop {
@@ -88,7 +97,7 @@
         0 0 .1vw ${redMeta},
         0 0 .2vw ${redMeta},
         0 0 .6vw ${redMeta},
-        0 0 .8vw ${redMeta}
+        0 0 .8vw ${redMeta};
       }
 
       #linkButton:disabled {
@@ -101,7 +110,15 @@
         0 0 .1vw ${redMeta},
         0 0 .2vw ${redMeta},
         0 0 .6vw ${redMeta},
-        0 0 .8vw ${redMeta}
+        0 0 .8vw ${redMeta};
+      }
+
+      #bookmarkButton:hover {
+        box-shadow: 0 0 .05vw ${redMeta},
+        0 0 .1vw ${redMeta},
+        0 0 .2vw ${redMeta},
+        0 0 .6vw ${redMeta},
+        0 0 .8vw ${redMeta};
       }
 
       #submitButton:hover {
@@ -109,13 +126,94 @@
         0 0 .1vw ${redMeta},
         0 0 .2vw ${redMeta},
         0 0 .6vw ${redMeta},
-        0 0 .8vw ${redMeta}
+        0 0 .8vw ${redMeta};
       }
 
       .tippy-content {
         font-size: .5vw;
+        font-family: "HelNeuMed";
+      }
+
+      .mouse_element {
+        background-color: rgba(51,51,51,0.25);
+        pointer-events: auto;
+        display: grid;
+        grid-template-columns: 2fr 1fr auto;
+        gap: 1vw; 
+        width: 95%;
+        height: .85vw;
+        border-radius: 5vw;
+        margin-bottom: .5vw;
+        padding: 0.5vw 1vw;
+        align-content: center;
+        cursor: pointer;
+        transition: background-color .25s cubic-bezier(.25, 0, .3, 1) !important;
+        z-index: 100;
+      }
+
+      .mouse_element:hover {
+        background-color: rgba(191,191,191,0.25);
+      }
+
+      .bookmark_label {
+        opacity: 0.65;
+      }
+
+      .mouse_element:hover .bookmark_label {
+        opacity: 0.85;
+      }
+
+      .mouse_element:has(.remove_bookmark:hover) {
+        background-color: rgba(255, 36, 36, 0.25);
+      }
+
+      .remove_bookmark {
+        opacity: .5;
+      }
+
+      .remove_bookmark:hover {
+        opacity: 1;
+      }
+
+      #add_bookmark {
+        background-color: rgba(51,51,51,0.25);
+      }
+
+      #add_bookmark:hover {
+        background-color: rgba(191,191,191,0.25);
+      }
+
+      #add_logo {
+        opacity: .65;
+      }
+
+      #add_bookmark:hover #add_logo {
+        opacity: .85;
+      }
+
+      #bookmark_list {
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
+
+      .simplebar-track.simplebar-vertical {
+        background-color: rgba(255, 36, 36, 0.25);
+        border-radius: 1vw;
+        z-index: 100%;
       }
       
+      .simplebar-scrollbar {
+        background-color: rgba(255, 36, 36, 0.50);
+        border-radius: 1vw;
+      }
+
+      .simplebar-scrollbar::before {
+        background-color: rgba(255, 36, 36, 1);
+      }
+
+      .simplebar-track.simplebar-horizontal {
+        display: none;
+      }
     `;
 
     document.head.appendChild(style);
@@ -131,6 +229,7 @@
         ? document.getElementById("player_html5_api")
         : document.querySelector("video");
     const popup = document.getElementById("rr_overlay");
+    const popupBook = document.getElementById("rr_bookmark");
 
     if (document.getElementById('player')) {
       videoEl = document.getElementById('player');
@@ -164,9 +263,11 @@
 
           const timeInput = document.getElementById("timeInput");
           timeInput && timeInput.focus();
+          popupBook.style.display = "flex"
         } else {
           modalMode = "close";
           popup.style.opacity = 0;
+          popupBook.style.display = "none"
           setTimeout(() => {
             popup[modalMode]();
           }, 250);
@@ -237,6 +338,8 @@
   const rr_logo = chrome.runtime.getURL("assets/RedbarLogo.svg");
   const link_logo = chrome.runtime.getURL("assets/link_8bit.svg");
   const time_logo = chrome.runtime.getURL("assets/clock_8bit.svg");
+  const bookmark_logo = chrome.runtime.getURL("assets/bookmark_8bit.svg");
+  const add_logo = chrome.runtime.getURL("assets/add.svg");
 
   const appendOverlay = () => {
     const overlay = `
@@ -253,9 +356,14 @@
             <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"><img src="${time_logo}" style="${time_logo_style}"/></button>
             <button ${document.location.href.includes("youtube.com/watch") ? `` : "disabled"
       } style="${link_button_style}" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
+            <button style="${bookmark_button_style}" id="bookmarkButton" type="submit" value="bookmark" name="bookmark"class="rr_tooltip-trigger"><img src="${bookmark_logo}" style="${bookmark_logo_style}"/></button> 
           </div>
         </form>
         <small style="${small_style}">© 2023 ALL RIGHTS RESERVED. <span style="font-family: HelNeuMedIt">GIVE IT A DOWNLOAD.</span></small>
+      </div>
+      <div id="rr_bookmark" style="width: 100%; height: 100%; position: absolute; display: flex; justify-content: center; align-items: center;">
+        <div id="bookmark_overlay" style="${bookmark_style}">
+        </div>
       </div>
     </dialog>
   `;
@@ -364,6 +472,7 @@
 
     tippy("#timeButton", { ...tippyConfig, content: "Copy Timecode" });
     tippy("#linkButton", { ...tippyConfig, content: "Copy Timestamp Link" });
+    tippy("#bookmarkButton", { ...tippyConfig, content: "Open Bookmark" });
 
     const showCopiedTippy = (selector) => {
       tippy(selector, {
@@ -436,13 +545,13 @@
       ) {
         overlayVisibleBool.value = !overlayVisibleBool.value;
 
-        const overlayDiv = document.getElementById("rr_overlay");
+        // const overlayDiv = document.getElementById("rr_overlay");
 
-        if (!overlayDiv) {
-          appendOverlay();
-          appendListeners();
-          appendTippy();
-        }
+        // if (!overlayDiv) {
+        //   appendOverlay();
+        //   appendListeners();
+        //   appendTippy();
+        // }
 
         if (overlayVisibleBool.value && document.location.href.includes("redbarradio")) {
           document.addEventListener('keydown', customKeydownHandler, true);
@@ -456,6 +565,16 @@
 
         toggleOverlay();
         document.getElementById("timeInput").value = "";
+
+        if (!overlayBookmarkBool.value) {
+          chrome.runtime.sendMessage({ command: "fetchJsonData" }, (response) => {
+            if (response && response.success) {
+              checkLocationAndLog(response.data)
+            } else {
+              console.error("Failed to fetch JSON:", response ? response.error : "No response");
+            }
+          });
+        }
       }
     }
   }
@@ -483,12 +602,92 @@
     }
   }
 
+  function checkLocationAndLog(jsonData) {
+    let currentUrl = document.location.href;
+
+    if (jsonData.hasOwnProperty(currentUrl)) {
+      console.log(jsonData[currentUrl]);
+
+      if (!overlayBookmarkBool.value) {
+        generateDynamicHtmlFromObject(jsonData[currentUrl])
+      }
+    } else {
+      console.log("No match found for the current URL.");
+    }
+  }
+
   function removeOverlay() {
     const overlayDiv = document.getElementById("rr_overlay");
     if (overlayDiv) {
       overlayVisibleBool.value = false;
       toggleOverlay()
     }
+  }
+
+  function scrollToBottom(element) {
+    console.log("SCROLLING NOW!")
+    let simple = SimpleBar.instances.get(element);
+    simple.getScrollElement().scrollTop = simple.getScrollElement().scrollHeight;
+  }
+
+  function appendMouseElement(description, timestamp) {
+    const newMouseElement = document.createElement('li');
+    newMouseElement.className = 'mouse_element';
+
+    newMouseElement.innerHTML = `
+        <span class="bookmark_label" style="${bookmark_label}">${description}</span>
+        <span class="bookmark_label" style="${bookmark_label}">${timestamp}</span>
+        <div class="remove_bookmark" style="${remove_bookmark}"></div>
+    `;
+    
+    // newMouseElement.innerHTML = `
+    //     <span class="bookmark_label" style="${bookmark_label}">${description}</span>
+    //     <span class="bookmark_label" style="${bookmark_label}">${timestamp}</span>
+    //     <div class="remove_bookmark" style="${remove_bookmark}"></div>
+    // `;
+
+    const removeBookmark = newMouseElement.querySelector('.remove_bookmark');
+    if (removeBookmark) {
+      removeBookmark.addEventListener("click", (event) => {
+        event.target.parentNode.remove()
+      });
+    }
+
+    const lastMouseElement = document.querySelector('#add_bookmark');
+
+    const bookmarkList = document.getElementById('bookmark_list');
+
+    if (lastMouseElement) {
+      lastMouseElement.parentNode.insertBefore(newMouseElement, lastMouseElement);
+    } else if (bookmarkList) {
+      bookmarkList.appendChild(newMouseElement);
+    } else {
+      console.error("No .mouse_element found and no parent list found.");
+    }
+    console.log("SCROLL DOWN!")
+
+    scrollToBottom(bookmarkList)
+  }
+
+  function generateDynamicHtmlFromObject(obj) {
+    let htmlContent = `<ul id="bookmark_list" style="${bookmark_list}" data-simplebar>`;
+
+    Object.entries(obj).forEach(([timestamp, description]) => {
+      htmlContent += `<li class="mouse_element"><span class="bookmark_label" style="${bookmark_label}">${description}</span><span class="bookmark_label" style="${bookmark_label}">${timestamp}</span><div class="remove_bookmark" style="${remove_bookmark}"></div></li>`;
+    });
+    htmlContent += `<li id="add_bookmark" style="${add_entry}"><img id="add_logo" src="${add_logo}" style="${add_logo_style}"/></li>`
+
+    htmlContent += '</ul>'
+
+    document.getElementById('bookmark_overlay').innerHTML = htmlContent;
+    overlayBookmarkBool.value = !overlayBookmarkBool.value
+
+    Array.from(document.getElementsByClassName("remove_bookmark")).forEach((remove) => {
+      remove.addEventListener("click", (event) => {
+        event.target.parentNode.remove()
+      });
+    });
+    document.getElementById("add_bookmark").addEventListener("click", () => appendMouseElement('New Description', '00:00:00'))
   }
 
   document.addEventListener("keydown", handleKeydown);
@@ -506,5 +705,4 @@
   window.addEventListener('popstate', removeOverlay);
 
   window.addEventListener('load', removeOverlay);
-
 })();

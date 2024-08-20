@@ -47,3 +47,29 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
   }
   return true;
 });
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.command === "fetchJsonData") {
+    fetch(chrome.runtime.getURL('assets/bookmarks.json'))
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Ensure sendResponse is called only if the context is valid
+        if (typeof sendResponse === 'function') {
+          sendResponse({ success: true, data });
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching JSON:", error);
+        if (typeof sendResponse === 'function') {
+          sendResponse({ success: false, error: error.message });
+        }
+      });
+
+    return true; // Important: Keep the message channel open
+  }
+});

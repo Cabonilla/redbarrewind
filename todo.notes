@@ -1,17 +1,16 @@
 [2024-04-07]
 Goals:
-[ ] Finish RR working on redbarradio.net site. 
-[ ] Basic testing on universlity. 
-[ ] Implement keyboard commands within modal window. (+5 time, -5 time)
-[ ] 
+[√] Finish RR working on redbarradio.net site. 
+[√] Basic testing on unversality. 
+[!] Implement keyboard commands within modal window. (+5 time, -5 time)
 TODO:
 [√] Open RR over video on redbarradio.net and sustain with no errors.
 [√] Get keyboard command working.
-[ ] Get form responding on site.
-[ ] Brute force change video timestamp.
+[√] Get form responding on site.
+[√] Brute force change video timestamp.
 Planning Log:
-- Convert RR into Video JS modal. 
-- Try to interpret Video JS as HTML. 
+- Convert RR into Video JS modal [***DONE***]. 
+- Try to interpret Video JS as HTML. [**DONE**]
 
 [2024-04-07]
 Notes:
@@ -19,3 +18,13 @@ Notes:
 Ideas:
 TODO:
 Activity Log:
+
+[2024-08-15]
+Goals:
+[√] Complete dummy task add.
+[ ] Complete dummy task remove.
+[ ] Tie adding and removal to local storage.
+TODO:
+- Move scrollbar slightly.
+- Add dummy task removal.
+Planning Log:

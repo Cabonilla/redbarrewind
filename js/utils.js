@@ -45,4 +45,23 @@ function padZero(num) {
   return num < 10 ? `0${num}` : num;
 }
 
+function convertJsonToKeyValuePairs(jsonData) {
+  const keyValuePairs = [];
 
+  for (const url in jsonData) {
+    if (jsonData.hasOwnProperty(url)) {
+      const timestamps = jsonData[url];
+      for (const time in timestamps) {
+        if (timestamps.hasOwnProperty(time)) {
+          keyValuePairs.push({
+            url: url,
+            timestamp: time,
+            description: timestamps[time]
+          });
+        }
+      }
+    }
+  }
+
+  return keyValuePairs;
+}
