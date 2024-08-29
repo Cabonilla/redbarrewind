@@ -32,6 +32,8 @@ object-fit: contain;
 display: flex;
 flex-wrap: wrap;
 padding: 1vw 1vw 1vw 1vw;
+justify-content: center;
+align-items: center;
 `
 
 let bookmark_list = `
@@ -48,6 +50,23 @@ outline: none;
 
 let bookmark_entry = `
 
+`
+
+let bookmark_input = `
+font-family: IBMPlexMono;
+border: none;
+background: transparent;
+background-color: none !important;
+outline: none;
+padding: 0;
+margin: 0;
+box-shadow: none;
+height: 100%;
+transition: opacity .25s cubic-bezier(.25, 0, .3, 1) !important;
+cursor: pointer;
+text-overflow: ellipsis;
+color: white;
+pointer-events: none;
 `
 
 let bookmark_label = `
@@ -70,7 +89,7 @@ transition: background .25s cubic-bezier(.25, 0, .3, 1) !important;
 let remove_bookmark = `
 width: .80vw;
 height: .80vw;
-background-color: #ff2424;
+background-color: ${redMeta};
 border-radius: 100%;
 justify-self: center;
 align-self: center;
@@ -82,7 +101,7 @@ let small_style = `
 margin-top: .5vw; 
 font-family: HelNeuMed; 
 font-size: .40vw; 
-color: #FF2424;
+color: ${redMeta};
 `
 
 let rr_container = `
@@ -90,6 +109,19 @@ display: flex;
 justify-content: center;
 align-items: center;
 flex-direction: column;
+`
+
+let rr_bookmark = `
+width: 100%; 
+height: 100%; 
+position: absolute; 
+justify-content: center; 
+align-items: center;
+opacity: 0;
+transition: opacity .25s cubic-bezier(.25, 0, .3, 1) !important;
+visibility: hidden;
+display: flex;
+z-index: 999;
 `
 
 let redbar_title = `

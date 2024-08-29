@@ -22,9 +22,17 @@ Activity Log:
 [2024-08-15]
 Goals:
 [√] Complete dummy task add.
-[ ] Complete dummy task remove.
-[ ] Tie adding and removal to local storage.
+[√] Complete dummy task remove.
+[√] Tie adding and removal to local storage.
 TODO:
 - Move scrollbar slightly.
 - Add dummy task removal.
+Planning Log:
+
+[2024-08-23]
+Goals:
+[ ] Add error handling for same time saving.
+[ ] *Finally* add click to timestamp.
+[ ] Add modal hiding and showing via button.
+TODO:
 Planning Log:

@@ -3,8 +3,11 @@
     ? "Mac/iOS"
     : "Windows/Linux";
   const overlayVisibleBool = { value: false };
-  const overlayBookmarkBool = { value: false };
-  const bookmarkStor = []
+  const overlayBookmarkBool = { 
+    value: false, 
+    open: false
+  };
+  let overlayAppended = false;
   let modalMode;
 
   let isMoveMutationObserverApplied = false;
@@ -38,6 +41,11 @@
 
   function addDialogStyles() {
     const style = document.createElement("style");
+    const colorList = {
+      "nonhover": "rgba(38, 42, 43, 0.25);",
+      "hover": "rgba(60, 65, 68, 0.25);",
+      "danger": "rgba(182, 0, 0, 0.25);"
+    }
     style.textContent = `
       @font-face {
         font-family: 'DotGothic';
@@ -135,11 +143,11 @@
       }
 
       .mouse_element {
-        background-color: rgba(51,51,51,0.25);
+        background-color: rgba(38, 42, 43, 0.25);
         pointer-events: auto;
         display: grid;
         grid-template-columns: 2fr 1fr auto;
-        gap: 1vw; 
+        gap: 3vw; 
         width: 95%;
         height: .85vw;
         border-radius: 5vw;
@@ -152,19 +160,21 @@
       }
 
       .mouse_element:hover {
-        background-color: rgba(191,191,191,0.25);
+        background-color: ${colorList["hover"]}
       }
 
-      .bookmark_label {
+      .bookmark_input:disabled {
         opacity: 0.65;
+        color: #fff;
       }
 
-      .mouse_element:hover .bookmark_label {
+      .mouse_element:hover .bookmark_input:disabled {
         opacity: 0.85;
+        color: #fff;
       }
 
       .mouse_element:has(.remove_bookmark:hover) {
-        background-color: rgba(255, 36, 36, 0.25);
+        background-color: ${colorList["danger"]}
       }
 
       .remove_bookmark {
@@ -176,11 +186,11 @@
       }
 
       #add_bookmark {
-        background-color: rgba(51,51,51,0.25);
+        background-color: ${colorList["nonhover"]}
       }
 
       #add_bookmark:hover {
-        background-color: rgba(191,191,191,0.25);
+        background-color: ${colorList["hover"]}
       }
 
       #add_logo {
@@ -213,6 +223,22 @@
 
       .simplebar-track.simplebar-horizontal {
         display: none;
+      }
+
+      .flash-effect {
+        animation: flashAnimation .5s cubic-bezier(.25, 0, .3, 1) 2;
+      }
+      
+      @keyframes flashAnimation {
+        0% {
+          background-color: ${colorList["nonhover"]}
+        }
+        50% {
+          background-color: ${colorList["danger"]}
+        }
+        100% {
+          background-color: ${colorList["nonhover"]}
+        }
       }
     `;
 
@@ -263,11 +289,12 @@
 
           const timeInput = document.getElementById("timeInput");
           timeInput && timeInput.focus();
-          popupBook.style.display = "flex"
+          // popupBook.style.display = "flex"
         } else {
           modalMode = "close";
           popup.style.opacity = 0;
-          popupBook.style.display = "none"
+          popupBook.style.opacity = 0;
+          popupBook.style.visibility = "hidden";
           setTimeout(() => {
             popup[modalMode]();
           }, 250);
@@ -335,6 +362,20 @@
     }
   }
 
+  function toggleBookmark(boolean) {
+    const bookmarkOverlay = document.getElementById("rr_bookmark")
+    if (boolean) {
+      bookmarkOverlay.style.visibility = "visible"
+      bookmarkOverlay.style.opacity = 1
+    } else {
+      bookmarkOverlay.style.opacity = 0
+      document.getElementById("timeInput").focus();
+      setTimeout(() => {
+        bookmarkOverlay.style.visibility = "hidden"
+      }, 250)
+    }
+  }
+
   const rr_logo = chrome.runtime.getURL("assets/RedbarLogo.svg");
   const link_logo = chrome.runtime.getURL("assets/link_8bit.svg");
   const time_logo = chrome.runtime.getURL("assets/clock_8bit.svg");
@@ -354,14 +395,13 @@
           <div class="button_group" style="${buttons_style}">
             <button style="${button_style}" id="submitButton" type="submit" value="jump" name="action"><span>→</span></button>
             <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"><img src="${time_logo}" style="${time_logo_style}"/></button>
-            <button ${document.location.href.includes("youtube.com/watch") ? `` : "disabled"
-      } style="${link_button_style}" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
-            <button style="${bookmark_button_style}" id="bookmarkButton" type="submit" value="bookmark" name="bookmark"class="rr_tooltip-trigger"><img src="${bookmark_logo}" style="${bookmark_logo_style}"/></button> 
+            <button ${document.location.href.includes("youtube.com/watch") ? `` : "disabled"} style="${link_button_style}" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
+            <button style="${bookmark_button_style}" id="bookmarkButton" type="submit" value="bookmark" name="bookmark" class="rr_tooltip-trigger"><img src="${bookmark_logo}" style="${bookmark_logo_style}"/></button> 
           </div>
         </form>
         <small style="${small_style}">© 2023 ALL RIGHTS RESERVED. <span style="font-family: HelNeuMedIt">GIVE IT A DOWNLOAD.</span></small>
       </div>
-      <div id="rr_bookmark" style="width: 100%; height: 100%; position: absolute; display: flex; justify-content: center; align-items: center;">
+      <div id="rr_bookmark" style="${rr_bookmark}">
         <div id="bookmark_overlay" style="${bookmark_style}">
         </div>
       </div>
@@ -411,6 +451,22 @@
 
     document.getElementById("linkButton").addEventListener("click", () => {
       handleClick(handleLinkCopy());
+    });
+
+    document.getElementById("bookmarkButton").addEventListener("click", () => {
+      overlayBookmarkBool.value = true
+      overlayBookmarkBool.open = true
+      console.log("value: ", overlayBookmarkBool.value, "open: ", overlayBookmarkBool.open)
+      toggleBookmark(overlayBookmarkBool.value)
+    });
+
+    document.getElementById("rr_bookmark").addEventListener("click", (event) => {
+      if (event.target === document.getElementById("rr_bookmark")) {
+        overlayBookmarkBool.value = false
+        overlayBookmarkBool.open = false
+        console.log("value: ", overlayBookmarkBool.value, "open: ", overlayBookmarkBool.open)
+        toggleBookmark(overlayBookmarkBool.value)
+      }
     });
 
     document.getElementById("timeInput").addEventListener("input", (e) => {
@@ -495,9 +551,319 @@
     showCopiedTippy("#linkButton");
   };
 
-  appendOverlay();
-  appendListeners();
-  appendTippy();
+  if (!overlayAppended) {
+    appendOverlay();
+    appendListeners();
+    appendTippy();
+    overlayAppended = true;
+  }
+
+  function handleKeydown(event) {
+    const isCtrlKey = OSName === "Mac/iOS" ? event.metaKey : event.ctrlKey;
+    const isAltKey = OSName === "Mac/iOS" ? event.ctrlKey : event.altKey;
+
+    if (isCtrlKey && isAltKey) {
+      if (
+        document.location.href.includes("youtube.com/watch") ||
+        document.location.href.includes("open.spotify") ||
+        document.location.href.includes("redbarradio")
+      ) {
+        overlayVisibleBool.value = !overlayVisibleBool.value;
+        if (!overlayVisibleBool.value && overlayBookmarkBool.open) {
+          overlayBookmarkBool.value = false
+        } else if (overlayVisibleBool.value && overlayBookmarkBool.open) {
+          overlayBookmarkBool.value = true
+        }
+        
+        console.log("overlay: ", overlayVisibleBool)
+        console.log("value: ", overlayBookmarkBool.value, "open: ", overlayBookmarkBool.open)
+        console.log(!overlayVisibleBool.value && overlayBookmarkBool.open)
+
+        if (overlayVisibleBool.value && document.location.href.includes("redbarradio")) {
+          document.addEventListener('keydown', customKeydownHandler(event, 'timeInput'), true);
+        } else {
+          document.removeEventListener('keydown', customKeydownHandler(event, 'timeInput'), true);
+        }
+
+        if (!spotifyOverlayBackground) {
+          spotifyOverlayBackground = true;
+        }
+
+        toggleOverlay();
+        toggleBookmark(overlayBookmarkBool.value)
+
+        document.getElementById("timeInput").value = "";
+
+        if (chrome.storage) {
+          let location = window.location.href
+
+          getBookmarksForVideo(location, function (videoBookmarks) {
+            if (videoBookmarks) {
+              generateDynamicHtmlFromObject(videoBookmarks)
+            } else {
+              generateDynamicHtmlFromObject(videoBookmarks)
+            }
+          });
+        } else {
+          console.error("chrome.storage API is not available.");
+        }
+      }
+    }
+  }
+
+  function customKeydownHandler(event, element) {
+    const overlayInput = document.getElementById(`${element}`);
+    const isNumberKey = (event.which >= 48 && event.which <= 57) || (event.which >= 96 && event.which <= 105);
+
+    if (isNumberKey) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      overlayInput.focus();
+
+      const numberKey = event.key;
+
+      if (overlayInput.value.length <= 7) {
+        overlayInput.value += numberKey;
+      } else {
+        return;
+      }
+
+      const inputEvent = new Event('input', { false: true });
+      overlayInput.dispatchEvent(inputEvent);
+    }
+  }
+
+  function removeOverlay() {
+    const overlayDiv = document.getElementById("rr_overlay");
+    if (overlayDiv) {
+      overlayVisibleBool.value = false;
+      toggleOverlay()
+    }
+  }
+
+  function scrollToBottom(element) {
+    let simple = SimpleBar.instances.get(element);
+    simple.getScrollElement().scrollTop = simple.getScrollElement().scrollHeight;
+  }
+
+  function appendMouseElement(timestamp) {
+    const newMouseElement = document.createElement('li');
+    newMouseElement.className = 'mouse_element';
+
+    newMouseElement.innerHTML = `
+        <input class="bookmark_input" autocomplete="off" id="current_input" type="text" autofocus style="${bookmark_input}"/>
+        <input class="bookmark_input" autocomplete="off" id="current_time" style="${bookmark_input}" value="${timestamp}" disabled/>
+        <div class="remove_bookmark" style="${remove_bookmark}"></div>
+      `;
+
+    const removeBookmark = newMouseElement.querySelector('.remove_bookmark');
+    if (removeBookmark) {
+      removeBookmark.addEventListener("click", (event) => {
+        event.target.parentNode.remove()
+        removeBookmarkEntry(window.location.href, timestamp)
+      });
+    }
+
+    const lastMouseElement = document.querySelector('#add_bookmark');
+
+    const bookmarkList = document.getElementById('bookmark_list');
+
+    if (lastMouseElement) {
+      lastMouseElement.parentNode.insertBefore(newMouseElement, lastMouseElement);
+    } else if (bookmarkList) {
+      bookmarkList.appendChild(newMouseElement);
+    } else {
+      console.error("No .mouse_element found and no parent list found.");
+    }
+
+    scrollToBottom(bookmarkList)
+
+    const thisInput = document.getElementById('current_input')
+
+    prepInput(thisInput, timestamp)
+
+    thisInput.focus();
+
+    const cancelInput = newMouseElement.querySelector('.bookmark_input');
+    if (removeBookmark) {
+      cancelInput.addEventListener('blur', function (event) {
+        event.target.id = "";
+        if (event.target.value !== "") {
+          event.target.setAttribute('disabled', 'on');
+        } else {
+          let par = event.target.parentNode
+          par.remove();
+        }
+      });
+    }
+  }
+
+  function generateDynamicHtmlFromObject(obj) {
+    let htmlContent = `<ul id="bookmark_list" style="${bookmark_list}" data-simplebar>`;
+
+    if (obj) {
+      Object.entries(obj).forEach(([timestamp, description]) => {
+        htmlContent += `<li class="mouse_element">
+        <input class="bookmark_input" autocomplete="off" id="bookmark_input" type="text" disabled value="${description}" style="${bookmark_input}"/>
+          <input class="bookmark_input" autocomplete="off" id="bookmark_time" style="${bookmark_input}" value="${timestamp}" disabled/>
+        <div class="remove_bookmark" style="${remove_bookmark}"></div></li>`;
+      });
+    }
+
+    htmlContent += `<li id="add_bookmark" style="${add_entry}"><img id="add_logo" src="${add_logo}" style="${add_logo_style}"/></li>`
+
+    htmlContent += '</ul>'
+
+    document.getElementById('bookmark_overlay').innerHTML = htmlContent;
+
+    Array.from(document.getElementsByClassName("remove_bookmark")).forEach((remove) => {
+      remove.addEventListener("click", (event) => {
+        let par = event.target.parentNode
+        par.remove();
+        removeBookmarkEntry(window.location.href, par.querySelector("#bookmark_time").value)
+      });
+    });
+
+    Array.from(document.getElementsByClassName("mouse_element")).forEach((el) => {
+      el.addEventListener("click", (event) => {
+        if (holdCompleted) {
+          event.preventDefault();
+          holdCompleted = false;
+          return;
+        }
+
+        let inp = event.target.querySelector("#bookmark_time");
+        manageBookmarkTime(inp);
+        simulateKeyPress();
+      });
+
+      let holdTimer;
+      let holdCompleted = false;
+
+      function onHoldComplete(event) {
+        console.log("Held for 2 seconds!");
+        let inp = event.target.querySelector("#bookmark_input");
+        inp.style.pointerEvents = "auto"
+        inp.disabled = false;
+        inp.focus();
+        prepInput(inp, inp.parentNode.querySelector("#bookmark_time").value)
+        holdCompleted = true;
+        event.preventDefault();
+      }
+
+      el.addEventListener("mousedown", (event) => {
+        holdCompleted = false;
+        holdTimer = setTimeout(() => onHoldComplete(event), 1000);
+      });
+
+      el.addEventListener("mouseup", (event) => {
+        clearTimeout(holdTimer);
+
+        if (holdCompleted) {
+          event.preventDefault();
+        }
+      });
+
+      el.addEventListener("mouseleave", () => {
+        clearTimeout(holdTimer);
+      });
+    });
+
+    document.getElementById("add_bookmark").addEventListener("click", (event) =>
+      getBookmarksForVideo(location, function (videoBookmarks) {
+        let currTime = handleTimeAdd()
+        if (videoBookmarks) {
+          getBookmarksForVideo(location, function (videoBookmarks) {
+            if (videoBookmarks && currTime in videoBookmarks === false) {
+              appendMouseElement(currTime)
+            } else {
+              if (document.querySelectorAll('.mouse_element').length === 1) {
+                applyFlashEffect(document.querySelector('.mouse_element'));
+              } else {
+                document.querySelectorAll('.mouse_element').forEach(bookmarkTimeElement => {
+                  if (!bookmarkTimeElement.querySelector("#bookmark_time")) {
+                    applyFlashEffect(bookmarkTimeElement)
+                  } else if (bookmarkTimeElement.querySelector("#bookmark_time").value === currTime) {
+                    applyFlashEffect(bookmarkTimeElement);
+                  }
+                });
+              }
+            }
+          }
+          );
+        } else {
+          appendMouseElement(currTime)
+        }
+      })
+    )
+  }
+
+  document.addEventListener("keydown", handleKeydown);
+
+  document.addEventListener(
+    "focusin",
+    function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+    },
+    true
+  );
+
+  window.addEventListener('popstate', removeOverlay);
+
+  window.addEventListener('load', removeOverlay);
+
+  function getBookmarksForVideo(videoUrl, callback) {
+    chrome.storage.local.get(['bookmarks'], function (result) {
+      let bookmarks = result.bookmarks || {};
+
+      if (bookmarks[videoUrl]) {
+        if (callback) {
+          callback(bookmarks[videoUrl]);
+        }
+      } else {
+        if (callback) {
+          callback(null);
+        }
+      }
+    });
+  }
+
+  function addBookmarkEntry(videoUrl, time, description) {
+    chrome.storage.local.get(['bookmarks'], function (result) {
+      let bookmarks = result.bookmarks || {};
+
+      if (!bookmarks[videoUrl]) {
+        bookmarks[videoUrl] = {};
+      }
+
+      bookmarks[videoUrl][time] = description;
+
+      if (description != '') {
+        chrome.storage.local.set({ bookmarks: bookmarks }, function () {
+        })
+      }
+    });
+  }
+
+  function removeBookmarkEntry(videoUrl, time) {
+    chrome.storage.local.get(['bookmarks'], function (result) {
+      let bookmarks = result.bookmarks || {};
+
+      if ((bookmarks[videoUrl] && bookmarks[videoUrl][time]) || (bookmarks[videoUrl] && bookmarks[videoUrl][time] === '')) {
+        delete bookmarks[videoUrl][time];
+
+        if (Object.keys(bookmarks[videoUrl]).length === 0) {
+          delete bookmarks[videoUrl];
+        }
+
+        chrome.storage.local.set({ bookmarks: bookmarks }, function () {
+        });
+      }
+    });
+  }
 
   function manageTime(e) {
     const action = e.submitter.value;
@@ -533,176 +899,46 @@
     }
   }
 
-  function handleKeydown(event) {
-    const isCtrlKey = OSName === "Mac/iOS" ? event.metaKey : event.ctrlKey;
-    const isAltKey = OSName === "Mac/iOS" ? event.ctrlKey : event.altKey;
+  function manageBookmarkTime(timeEl) {
+    const timeInput = timeEl.value.split(":");
+    tl = timeInput.length;
 
-    if (isCtrlKey && isAltKey) {
-      if (
-        document.location.href.includes("youtube.com/watch") ||
-        document.location.href.includes("open.spotify") ||
-        document.location.href.includes("redbarradio")
-      ) {
-        overlayVisibleBool.value = !overlayVisibleBool.value;
+    let hoursInput = 0,
+      minutesInput = 0,
+      secondsInput = 0;
 
-        // const overlayDiv = document.getElementById("rr_overlay");
-
-        // if (!overlayDiv) {
-        //   appendOverlay();
-        //   appendListeners();
-        //   appendTippy();
-        // }
-
-        if (overlayVisibleBool.value && document.location.href.includes("redbarradio")) {
-          document.addEventListener('keydown', customKeydownHandler, true);
-        } else {
-          document.removeEventListener('keydown', customKeydownHandler, true);
-        }
-
-        if (!spotifyOverlayBackground) {
-          spotifyOverlayBackground = true;
-        }
-
-        toggleOverlay();
-        document.getElementById("timeInput").value = "";
-
-        if (!overlayBookmarkBool.value) {
-          chrome.runtime.sendMessage({ command: "fetchJsonData" }, (response) => {
-            if (response && response.success) {
-              checkLocationAndLog(response.data)
-            } else {
-              console.error("Failed to fetch JSON:", response ? response.error : "No response");
-            }
-          });
-        }
-      }
+    if (tl === 1) {
+      secondsInput = parseInt(timeInput[0], 10) || 0;
+    } else if (tl === 2) {
+      minutesInput = parseInt(timeInput[0], 10) || 0;
+      secondsInput = parseInt(timeInput[1], 10) || 0;
+    } else if (tl === 3) {
+      hoursInput = parseInt(timeInput[0], 10) || 0;
+      minutesInput = parseInt(timeInput[1], 10) || 0;
+      secondsInput = parseInt(timeInput[2], 10) || 0;
     }
-  }
 
-  function customKeydownHandler(event) {
-    const overlayInput = document.getElementById('timeInput');
-    const isNumberKey = (event.which >= 48 && event.which <= 57) || (event.which >= 96 && event.which <= 105);
+    const totalSeconds = hoursInput * 3600 + minutesInput * 60 + secondsInput;
 
-    if (isNumberKey) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      overlayInput.focus();
-
-      const numberKey = event.key;
-
-      if (overlayInput.value.length <= 7) {
-        overlayInput.value += numberKey;
-      } else {
-        return;
-      }
-
-      const inputEvent = new Event('input', { false: true });
-      overlayInput.dispatchEvent(inputEvent);
-    }
-  }
-
-  function checkLocationAndLog(jsonData) {
-    let currentUrl = document.location.href;
-
-    if (jsonData.hasOwnProperty(currentUrl)) {
-      console.log(jsonData[currentUrl]);
-
-      if (!overlayBookmarkBool.value) {
-        generateDynamicHtmlFromObject(jsonData[currentUrl])
-      }
-    } else {
-      console.log("No match found for the current URL.");
-    }
-  }
-
-  function removeOverlay() {
-    const overlayDiv = document.getElementById("rr_overlay");
-    if (overlayDiv) {
-      overlayVisibleBool.value = false;
-      toggleOverlay()
-    }
-  }
-
-  function scrollToBottom(element) {
-    console.log("SCROLLING NOW!")
-    let simple = SimpleBar.instances.get(element);
-    simple.getScrollElement().scrollTop = simple.getScrollElement().scrollHeight;
-  }
-
-  function appendMouseElement(description, timestamp) {
-    const newMouseElement = document.createElement('li');
-    newMouseElement.className = 'mouse_element';
-
-    newMouseElement.innerHTML = `
-        <span class="bookmark_label" style="${bookmark_label}">${description}</span>
-        <span class="bookmark_label" style="${bookmark_label}">${timestamp}</span>
-        <div class="remove_bookmark" style="${remove_bookmark}"></div>
-    `;
-    
-    // newMouseElement.innerHTML = `
-    //     <span class="bookmark_label" style="${bookmark_label}">${description}</span>
-    //     <span class="bookmark_label" style="${bookmark_label}">${timestamp}</span>
-    //     <div class="remove_bookmark" style="${remove_bookmark}"></div>
-    // `;
-
-    const removeBookmark = newMouseElement.querySelector('.remove_bookmark');
-    if (removeBookmark) {
-      removeBookmark.addEventListener("click", (event) => {
-        event.target.parentNode.remove()
+    chrome.runtime?.id &&
+      chrome.runtime.sendMessage({
+        command: "jumpToTime",
+        time: totalSeconds,
       });
-    }
-
-    const lastMouseElement = document.querySelector('#add_bookmark');
-
-    const bookmarkList = document.getElementById('bookmark_list');
-
-    if (lastMouseElement) {
-      lastMouseElement.parentNode.insertBefore(newMouseElement, lastMouseElement);
-    } else if (bookmarkList) {
-      bookmarkList.appendChild(newMouseElement);
-    } else {
-      console.error("No .mouse_element found and no parent list found.");
-    }
-    console.log("SCROLL DOWN!")
-
-    scrollToBottom(bookmarkList)
   }
 
-  function generateDynamicHtmlFromObject(obj) {
-    let htmlContent = `<ul id="bookmark_list" style="${bookmark_list}" data-simplebar>`;
-
-    Object.entries(obj).forEach(([timestamp, description]) => {
-      htmlContent += `<li class="mouse_element"><span class="bookmark_label" style="${bookmark_label}">${description}</span><span class="bookmark_label" style="${bookmark_label}">${timestamp}</span><div class="remove_bookmark" style="${remove_bookmark}"></div></li>`;
+  function prepInput(thisInput, timestamp) {
+    thisInput.addEventListener('blur', function () {
+      this.setAttribute('disabled', 'on');
+      addBookmarkEntry(window.location.href, timestamp, this.value)
+      console.log("NO BLUR!")
     });
-    htmlContent += `<li id="add_bookmark" style="${add_entry}"><img id="add_logo" src="${add_logo}" style="${add_logo_style}"/></li>`
 
-    htmlContent += '</ul>'
-
-    document.getElementById('bookmark_overlay').innerHTML = htmlContent;
-    overlayBookmarkBool.value = !overlayBookmarkBool.value
-
-    Array.from(document.getElementsByClassName("remove_bookmark")).forEach((remove) => {
-      remove.addEventListener("click", (event) => {
-        event.target.parentNode.remove()
-      });
+    thisInput.addEventListener('keydown', function (event) {
+      if (event.key === "Enter") {
+        this.setAttribute('disabled', 'on');
+        addBookmarkEntry(window.location.href, timestamp, this.value)
+      }
     });
-    document.getElementById("add_bookmark").addEventListener("click", () => appendMouseElement('New Description', '00:00:00'))
   }
-
-  document.addEventListener("keydown", handleKeydown);
-
-  document.addEventListener(
-    "focusin",
-    function (event) {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-    },
-    true
-  );
-
-  window.addEventListener('popstate', removeOverlay);
-
-  window.addEventListener('load', removeOverlay);
 })();

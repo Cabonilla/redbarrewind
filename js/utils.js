@@ -17,6 +17,13 @@ const handleTimeCopy = () => {
   return paddedTime;
 };
 
+const handleTimeAdd = () => {
+  const videoElement = document.querySelector("video");
+  const currTime = videoElement.currentTime;
+  const addedTime = secondsToTime(currTime);
+  return addedTime;
+};
+
 const handleLinkCopy = () => {
   const videoElement = document.querySelector("video");
   const totalSeconds = Math.ceil(videoElement.currentTime);
@@ -65,3 +72,59 @@ function convertJsonToKeyValuePairs(jsonData) {
 
   return keyValuePairs;
 }
+
+const flashBackground = async (element, color1, color2, duration) => {
+  const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+  element.style.backgroundColor = color1;
+  await wait(duration);
+
+  element.style.backgroundColor = color2;
+  await wait(duration);
+
+  element.style.backgroundColor = color1;
+  await wait(duration);
+
+  element.style.backgroundColor = color2;
+};
+
+const applyFlashEffect = (element) => {
+  element.classList.add("flash-effect");
+
+  element.addEventListener("animationend", () => {
+    element.classList.remove("flash-effect");
+  }, { once: true });
+};
+
+function simulateKeyPress() {
+  const isMac = navigator.platform.toUpperCase().includes('MAC');
+  
+  const ctrlOrCmdKey = isMac ? 'Meta' : 'Control';
+  const ctrlOrCmdKeyCode = isMac ? 91 : 17; 
+  
+  const ctrlOrCmdDownEvent = new KeyboardEvent('keydown', {
+    key: ctrlOrCmdKey,
+    keyCode: ctrlOrCmdKeyCode,
+    code: ctrlOrCmdKey + 'Left',
+    ctrlKey: !isMac,
+    metaKey: isMac,
+    altKey: false,
+    bubbles: true,
+    cancelable: true
+  });
+
+  const altDownEvent = new KeyboardEvent('keydown', {
+    key: 'Alt',
+    keyCode: 18, 
+    code: 'AltLeft',
+    ctrlKey: !isMac,
+    metaKey: isMac,
+    altKey: true,
+    bubbles: true,
+    cancelable: true
+  });
+
+  document.dispatchEvent(ctrlOrCmdDownEvent);
+  document.dispatchEvent(altDownEvent);
+}
+
