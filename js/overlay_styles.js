@@ -67,6 +67,7 @@ cursor: pointer;
 text-overflow: ellipsis;
 color: white;
 pointer-events: none;
+font-size: .75vw;
 `
 
 let bookmark_label = `

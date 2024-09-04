@@ -3,8 +3,8 @@
     ? "Mac/iOS"
     : "Windows/Linux";
   const overlayVisibleBool = { value: false };
-  const overlayBookmarkBool = { 
-    value: false, 
+  const overlayBookmarkBool = {
+    value: false,
     open: false
   };
   let overlayAppended = false;
@@ -113,6 +113,11 @@
         opacity: .55;
       }
 
+      #bookmarkButton:disabled {
+        pointer-events: none;
+        opacity: .55;
+      }
+
       #timeButton:hover {
         box-shadow: 0 0 .05vw ${redMeta},
         0 0 .1vw ${redMeta},
@@ -186,11 +191,21 @@
       }
 
       #add_bookmark {
-        background-color: ${colorList["nonhover"]}
+        background-color: ${colorList["nonhover"]};
       }
 
       #add_bookmark:hover {
-        background-color: ${colorList["hover"]}
+        background-color: ${colorList["hover"]};
+      }
+
+      #add_bookmark.dragover {
+        background-color: ${colorList["hover"]};
+        cursor: grabbing;
+      }
+
+      #add_bookmark.dragover #add_logo {
+        opacity: .85;
+        pointer-events: none;
       }
 
       #add_logo {
@@ -395,8 +410,8 @@
           <div class="button_group" style="${buttons_style}">
             <button style="${button_style}" id="submitButton" type="submit" value="jump" name="action"><span>→</span></button>
             <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"><img src="${time_logo}" style="${time_logo_style}"/></button>
-            <button ${document.location.href.includes("youtube.com/watch") ? `` : "disabled"} style="${link_button_style}" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
-            <button style="${bookmark_button_style}" id="bookmarkButton" type="submit" value="bookmark" name="bookmark" class="rr_tooltip-trigger"><img src="${bookmark_logo}" style="${bookmark_logo_style}"/></button> 
+            <button ${window.location.href.includes("youtube.com/watch") ? `` : "disabled"} style="${link_button_style}" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
+            <button ${window.location.href.includes("youtube.com/watch") ? `` : "disabled"} style="${bookmark_button_style}" id="bookmarkButton" type="submit" value="bookmark" name="bookmark" class="rr_tooltip-trigger"><img src="${bookmark_logo}" style="${bookmark_logo_style}"/></button> 
           </div>
         </form>
         <small style="${small_style}">© 2023 ALL RIGHTS RESERVED. <span style="font-family: HelNeuMedIt">GIVE IT A DOWNLOAD.</span></small>
@@ -407,6 +422,8 @@
       </div>
     </dialog>
   `;
+
+  console.log("CURRENT WEBSITE:", window.location.href)
 
     const popupElement = document.createElement("div");
     popupElement.id = "popup_container";
@@ -456,7 +473,7 @@
     document.getElementById("bookmarkButton").addEventListener("click", () => {
       overlayBookmarkBool.value = true
       overlayBookmarkBool.open = true
-      console.log("value: ", overlayBookmarkBool.value, "open: ", overlayBookmarkBool.open)
+      // console.log("value: ", overlayBookmarkBool.value, "open: ", overlayBookmarkBool.open)
       toggleBookmark(overlayBookmarkBool.value)
     });
 
@@ -464,7 +481,7 @@
       if (event.target === document.getElementById("rr_bookmark")) {
         overlayBookmarkBool.value = false
         overlayBookmarkBool.open = false
-        console.log("value: ", overlayBookmarkBool.value, "open: ", overlayBookmarkBool.open)
+        // console.log("value: ", overlayBookmarkBool.value, "open: ", overlayBookmarkBool.open)
         toggleBookmark(overlayBookmarkBool.value)
       }
     });
@@ -551,13 +568,6 @@
     showCopiedTippy("#linkButton");
   };
 
-  if (!overlayAppended) {
-    appendOverlay();
-    appendListeners();
-    appendTippy();
-    overlayAppended = true;
-  }
-
   function handleKeydown(event) {
     const isCtrlKey = OSName === "Mac/iOS" ? event.metaKey : event.ctrlKey;
     const isAltKey = OSName === "Mac/iOS" ? event.ctrlKey : event.altKey;
@@ -574,10 +584,16 @@
         } else if (overlayVisibleBool.value && overlayBookmarkBool.open) {
           overlayBookmarkBool.value = true
         }
-        
-        console.log("overlay: ", overlayVisibleBool)
-        console.log("value: ", overlayBookmarkBool.value, "open: ", overlayBookmarkBool.open)
-        console.log(!overlayVisibleBool.value && overlayBookmarkBool.open)
+
+        // console.log("overlay: ", overlayVisibleBool)
+        // console.log("value: ", overlayBookmarkBool.value, "open: ", overlayBookmarkBool.open)
+        // console.log(!overlayVisibleBool.value && overlayBookmarkBool.open)
+        if (!overlayAppended) {
+          appendOverlay();
+          appendListeners();
+          appendTippy();
+          overlayAppended = true;
+        }
 
         if (overlayVisibleBool.value && document.location.href.includes("redbarradio")) {
           document.addEventListener('keydown', customKeydownHandler(event, 'timeInput'), true);
@@ -688,7 +704,6 @@
     const cancelInput = newMouseElement.querySelector('.bookmark_input');
     if (removeBookmark) {
       cancelInput.addEventListener('blur', function (event) {
-        event.target.id = "";
         if (event.target.value !== "") {
           event.target.setAttribute('disabled', 'on');
         } else {
@@ -697,6 +712,122 @@
         }
       });
     }
+
+    let holdTimer;
+    let holdCompleted = false;
+
+    function onHoldComplete(event) {
+      // console.log("Held for 2 seconds!");
+      // console.log(event.target)
+      let inp = event.target.querySelector("#current_input");
+      inp.style.pointerEvents = "auto";
+      inp.disabled = false;
+      inp.focus();
+      prepInput(inp, inp.parentNode.querySelector("#current_time").value)
+      holdCompleted = true;
+      // console.log(inp)
+      event.preventDefault();
+    }
+
+    newMouseElement.addEventListener("mousedown", (event) => {
+      holdCompleted = false;
+      holdTimer = setTimeout(() => onHoldComplete(event), 1000);
+    });
+
+    newMouseElement.addEventListener("mouseup", (event) => {
+      clearTimeout(holdTimer);
+
+      if (holdCompleted) {
+        event.preventDefault();
+      }
+
+      let inp = event.target.querySelector("#current_input");
+      if (inp) {
+        inp.style.pointerEvents = "none";
+      }
+    });
+
+    newMouseElement.addEventListener("mouseleave", (event) => {
+      clearTimeout(holdTimer);
+
+      let inp = event.target.querySelector("#current_input");
+      if (inp) {
+        inp.style.pointerEvents = "none";
+      }
+    });
+  }
+
+
+  function appendTextElement(timestamp, description) {
+    const newMouseElement = document.createElement('li');
+    newMouseElement.className = 'mouse_element';
+
+    newMouseElement.innerHTML = `
+        <input class="bookmark_input" autocomplete="off" id="current_input" type="text" autofocus style="${bookmark_input}" value="${description}" disabled/>
+        <input class="bookmark_input" autocomplete="off" id="current_time" style="${bookmark_input}" value="${timestamp}" disabled/>
+        <div class="remove_bookmark" style="${remove_bookmark}"></div>
+      `;
+
+    const removeBookmark = newMouseElement.querySelector('.remove_bookmark');
+    if (removeBookmark) {
+      removeBookmark.addEventListener("click", (event) => {
+        event.target.parentNode.remove()
+        removeBookmarkEntry(window.location.href, timestamp)
+      });
+    }
+
+    const lastMouseElement = document.querySelector('#add_bookmark');
+
+    const bookmarkList = document.getElementById('bookmark_list');
+
+    if (lastMouseElement) {
+      lastMouseElement.parentNode.insertBefore(newMouseElement, lastMouseElement);
+    } else if (bookmarkList) {
+      bookmarkList.appendChild(newMouseElement);
+    } else {
+      console.error("No .mouse_element found and no parent list found.");
+    }
+
+    scrollToBottom(bookmarkList)
+
+    let holdTimer;
+    let holdCompleted = false;
+
+    function onHoldComplete(event) {
+      // console.log("Held for 2 seconds!");
+      // console.log(event.target)
+      let inp = event.target.querySelector("#current_input");
+      inp.style.pointerEvents = "auto";
+      inp.disabled = false;
+      inp.focus();
+      prepInput(inp, inp.parentNode.querySelector("#current_time").value)
+      holdCompleted = true;
+      // console.log(inp)
+      event.preventDefault();
+    }
+
+    newMouseElement.addEventListener("mousedown", (event) => {
+      holdCompleted = false;
+      holdTimer = setTimeout(() => onHoldComplete(event), 1000);
+    });
+
+    newMouseElement.addEventListener("mouseup", (event) => {
+      clearTimeout(holdTimer);
+
+      if (holdCompleted) {
+        event.preventDefault();
+      }
+
+      let inp = event.target.querySelector("#current_input");
+      inp.style.pointerEvents = "none";
+    });
+
+    newMouseElement.addEventListener("mouseleave", (event) => {
+      clearTimeout(holdTimer);
+
+      let inp = event.target.querySelector("#current_input");
+      inp.style.pointerEvents = "none";
+    });
   }
 
   function generateDynamicHtmlFromObject(obj) {
@@ -742,35 +873,45 @@
       let holdCompleted = false;
 
       function onHoldComplete(event) {
-        console.log("Held for 2 seconds!");
+        // console.log("Held for 2 seconds!");
         let inp = event.target.querySelector("#bookmark_input");
         inp.style.pointerEvents = "auto"
         inp.disabled = false;
         inp.focus();
         prepInput(inp, inp.parentNode.querySelector("#bookmark_time").value)
         holdCompleted = true;
+        // console.log(inp)
         event.preventDefault();
       }
 
       el.addEventListener("mousedown", (event) => {
         holdCompleted = false;
+        clearTimeout(holdTimer);
         holdTimer = setTimeout(() => onHoldComplete(event), 1000);
       });
 
       el.addEventListener("mouseup", (event) => {
         clearTimeout(holdTimer);
 
+        let inp = event.target.querySelector("#bookmark_input");
+        inp.style.pointerEvents = "none";
+
         if (holdCompleted) {
           event.preventDefault();
         }
       });
 
-      el.addEventListener("mouseleave", () => {
+      el.addEventListener("mouseleave", (event) => {
         clearTimeout(holdTimer);
+
+        let inp = event.target.querySelector("#bookmark_input");
+        inp.style.pointerEvents = "none"
       });
     });
 
-    document.getElementById("add_bookmark").addEventListener("click", (event) =>
+    let add = document.getElementById("add_bookmark")
+
+    add.addEventListener("click", (event) =>
       getBookmarksForVideo(location, function (videoBookmarks) {
         let currTime = handleTimeAdd()
         if (videoBookmarks) {
@@ -797,6 +938,89 @@
         }
       })
     )
+
+    add.addEventListener(('dragover'), (event) => {
+      event.preventDefault();
+      event.target.classList.add('dragover');
+    });
+
+    add.addEventListener(('dragleave'), (event) => {
+      event.target.classList.remove('dragover');
+    });
+
+    add.addEventListener('drop', (event) => {
+      event.preventDefault();
+      add.classList.remove('dragover');
+
+      const file = event.dataTransfer.files[0];
+      if (file && file.type === 'text/plain') {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          let textObj = convertToObj(e.target.result)
+          addMultipleEntries(textObj)
+
+          for (let [key, value] of Object.entries(textObj)) {
+            // getBookmarksForVideo(key, (entry) => {
+            //   if (entry && key == window.location.href) {
+            //     for (let [time, desc] of Object.entries(value)) {
+            //       if (!(time in entry)) {
+            //         appendTextElement(time, desc)
+            //         addBookmarkEntry(key, time, desc)
+            //         console.log("Additional Entry: ", key, time, desc)
+            //       } else {
+            //         console.log("Collision Entry: ", key, time, desc)
+            //         let replace = document.querySelector(`.mouse_element input[value="${time}"]`)
+            //         replace.parentElement.querySelector('#bookmark_input').value = desc
+            //         addBookmarkEntry(key, time, desc)
+            //       }
+            //     }
+            //   } else {
+            //     for (let [time, desc] of Object.entries(value)) {
+            //       console.log("New Entry: ", key, time, desc)
+            //       addBookmarkEntry(key, time, desc)
+            //     }
+            //   }
+            // })
+
+            if (key == window.location.href) {
+              for (let [time, desc] of Object.entries(value)) {
+                let replace = document.querySelector(`.mouse_element input[value="${time}"]`)
+                if (!replace) {
+                  appendTextElement(time, desc)
+                  console.log("Additional Entry: ", key, time, desc)
+                } else {
+                  replace.parentElement.querySelector('#bookmark_input').value = desc
+                  console.log("Collision Entry: ", key, time, desc)
+                }
+              }
+            }
+
+            // if (key == window.location.href) {
+            //   for (let [time, desc] of Object.entries(value)) {
+            //     let replace = document.querySelector(`.mouse_element input[value="${time}"]`)
+            //     if (!replace) {
+            //       appendTextElement(time, desc)
+            //       addBookmarkEntry(key, time, desc)
+            //       console.log("Additional Entry: ", key, time, desc)
+            //     } else {
+            //       console.log("Collision Entry: ", key, time, desc)
+            //       replace.parentElement.querySelector('#bookmark_input').value = desc
+            //       addBookmarkEntry(key, time, desc)
+            //     }
+            //   }
+            // } else {
+            //   for (let [time, desc] of Object.entries(value)) {
+            //     console.log("New Entry: ", key, time, desc)
+            //     addBookmarkEntry(key, time, desc)
+            //   }
+            // }
+          }
+        };
+        reader.readAsText(file);
+      } else {
+        alert("Please drop a valid text file.");
+      }
+    });
   }
 
   document.addEventListener("keydown", handleKeydown);
@@ -818,16 +1042,7 @@
   function getBookmarksForVideo(videoUrl, callback) {
     chrome.storage.local.get(['bookmarks'], function (result) {
       let bookmarks = result.bookmarks || {};
-
-      if (bookmarks[videoUrl]) {
-        if (callback) {
-          callback(bookmarks[videoUrl]);
-        }
-      } else {
-        if (callback) {
-          callback(null);
-        }
-      }
+      callback(bookmarks[videoUrl] || null);
     });
   }
 
@@ -840,11 +1055,33 @@
       }
 
       bookmarks[videoUrl][time] = description;
+      console.log("Entered: ", videoUrl, time, description);
 
-      if (description != '') {
+      if (description !== '') {
         chrome.storage.local.set({ bookmarks: bookmarks }, function () {
-        })
+          console.log('Updated storage:', bookmarks);
+        });
       }
+    });
+  }
+
+  function addMultipleEntries(newObj) {
+    chrome.storage.local.get(['bookmarks'], function (result) {
+      let bookmarks = result.bookmarks || {};
+  
+      for (let [newUrl, newEntries] of Object.entries(newObj)) {
+        if (!bookmarks[newUrl]) {
+          bookmarks[newUrl] = newEntries;
+        } else {
+          for (let [newTime, newDescription] of Object.entries(newEntries)) {
+            bookmarks[newUrl][newTime] = newDescription;
+          }
+        }
+      }
+  
+      chrome.storage.local.set({ bookmarks: bookmarks }, function () {
+        console.log('Updated storage:', bookmarks);
+      });
     });
   }
 
@@ -931,7 +1168,7 @@
     thisInput.addEventListener('blur', function () {
       this.setAttribute('disabled', 'on');
       addBookmarkEntry(window.location.href, timestamp, this.value)
-      console.log("NO BLUR!")
+      // console.log("NO BLUR!")
     });
 
     thisInput.addEventListener('keydown', function (event) {

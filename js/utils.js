@@ -128,3 +128,23 @@ function simulateKeyPress() {
   document.dispatchEvent(altDownEvent);
 }
 
+function convertToObj(text) {
+  const lines = text.trim().split("\n");
+  const result = {};
+
+  let currentLink = '';
+
+  lines.forEach(line => {
+    if (line.startsWith("https://")) {
+      currentLink = line.trim();
+      result[currentLink] = {}; 
+    } else if (line.includes(" - ")) {
+      const [time, description] = line.split(" - ");
+      if (currentLink) {
+        result[currentLink][time.trim()] = description.trim(); 
+      }
+    }
+  });
+
+  return result;
+}

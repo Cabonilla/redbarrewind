@@ -31,8 +31,26 @@ Planning Log:
 
 [2024-08-23]
 Goals:
-[ ] Add error handling for same time saving.
-[ ] *Finally* add click to timestamp.
-[ ] Add modal hiding and showing via button.
+[√] Add error handling for same time saving.
+[√] *Finally* add click to timestamp.
+[√] Add modal hiding and showing via button.
+TODO:
+- All goals were met and exceeded.
+Planning Log:
+- Rectifying drag and drop feature.
+
+[2024-09-02]
+Goals:
+[√] Finish drag and drag feature, including both local storage addition and render. 
+[ ] Animate the addition and subtraction of time entries.
 TODO:
 Planning Log:
+
+[2024-09-04]
+Goals:
+[ ] Add overall bookmark viewing.
+[ ] Add download function for bookmarks.
+TODO:
+Planning Log:
+
+
