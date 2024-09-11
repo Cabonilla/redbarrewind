@@ -80,7 +80,7 @@ display: flex;
 justify-content: center;
 align-items: center;
 height: .85vw;
-width: 95%;
+width: 90%;
 border-radius: 2vw;
 padding: 0.5vw 1vw;
 cursor: pointer;

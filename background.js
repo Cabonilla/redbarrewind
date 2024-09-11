@@ -1,3 +1,5 @@
+chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS' });
+
 function getActiveTabId(callback) {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     if (tabs && tabs.length > 0) {
@@ -70,6 +72,57 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
       });
 
-    return true; // Important: Keep the message channel open
+    return true;
   }
 });
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.type === 'fetchVideoInfo') {
+    gatherVideoInfo(request.bookmarks)
+      .then(videoData => {
+        sendResponse({ videoInfoArray: videoData });
+      })
+      .catch(error => {
+        console.error('Error in gatherVideoInfo:', error);
+        sendResponse({ videoInfoArray: [] });
+      });
+  }
+  return true; // Keeps the message channel open for asynchronous response
+});
+
+async function gatherVideoInfo(videos) {
+  const videoInfoArray = [];
+  for (const url of Object.keys(videos)) {
+    const videoInfo = await getVideoInfo(url);
+    if (videoInfo) {
+      videoInfoArray.push({ url, ...videoInfo });
+    }
+  }
+  return videoInfoArray;
+}
+
+async function getVideoInfo(url) {
+  const apiUrl = `https://www.youtube.com/oembed?url=${url}&format=json`;
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'SameSite': 'None', // Headers related to cookies
+      },
+      credentials: 'omit' // Avoid sending cookies in the request
+    });
+    if (!response.ok) throw new Error(`Error fetching data for ${url}`);
+    const data = await response.json();
+    console.log(data)
+    return {
+      title: data.title,
+      preview: data.thumbnail_url,
+      iframe: data.html,
+      url: url
+    };
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}

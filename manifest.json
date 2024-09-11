@@ -10,7 +10,11 @@
       "16": "assets/rrewind16.png",
       "48": "assets/rrewind48.png",
       "128": "assets/rrewind128.png"
-    }
+    },
+    "content_security_policy": {
+      "extension_pages": "default-src 'self'; connect-src https://www.youtube.com;"
+    },
+    "default_popup": "popup.html"
   },
   "background": {
     "service_worker": "background.js",
@@ -20,7 +24,7 @@
     {
       "matches": ["https://*.youtube.com/*", "https://*.spotify.com/*", "https://*.redbarradio.net/*"],
       "js": ["js/utils.js", "js/overlay_styles.js", "js/popper.min.js", "js/tippy-bundle.umd.min.js", "js/vanilla-tilt.min.js", "js/simplebar.min.js", "content.js"],
-      "css": ["css/scale.css", "css/translucent.css", "css/simplebar.css"],
+      "css": ["css/scale.css", "css/translucent.css", "css/simplebar.css", "css/shift-toward.css"],
       "all_frames": true,
       "run_at": "document_end"
     }
@@ -39,7 +43,10 @@
         "assets/HelNeuMed.otf",
         "assets/HelNeuMedIt.otf",
         "assets/IBMPlexMono-Medium.ttf",
-        "assets/bookmarks.json"
+        "assets/bookmarks.json",
+        "assets/yt.svg",
+        "assets/sp.svg",
+        "assets/tw.svg"
       ],
       "matches": ["https://*.youtube.com/*", "https://*.spotify.com/*", "https://*.redbarradio.net/*"]
     }

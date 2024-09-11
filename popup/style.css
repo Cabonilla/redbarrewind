@@ -1,0 +1,147 @@
+@font-face {
+    font-family: "HelNeuMedIt";
+    src: url(../assets/HelNeuMedIt.otf) format("truetype");
+}
+
+@font-face {
+    font-family: "HelNeuMed";
+    src: url(../assets/HelNeuMed.otf) format("truetype");
+}
+
+body {
+    background-color: rgba(0,0,0,0.95);
+    max-height: 600px;
+}
+
+#video-previews {
+    width: 320px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    padding: 10px;
+    gap: 15px 0px;
+}
+
+.video_link {
+    width: 100%;
+    height: 100%;
+}
+
+.preview_image {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.tippy-box[data-theme~='custom'] {
+    width: 200px;
+}
+
+.tippy-box[data-theme~='custom'] .tippy-content {
+    color: #fff;
+    font-family: HelNeuMedIt;
+}
+
+.remove_bookmark_popup {
+    width: 20px;
+    height: 20px;
+    background-color: #FF2424;
+    border-radius: 100%;
+    transition: opacity .25s cubic-bezier(.25, 0, .3, 1) !important;
+    z-index: 1000 !important;
+    right: 10px;
+    top: 10px;
+    position: absolute;
+    opacity: .5;
+    cursor: pointer;
+}
+
+.remove_bookmark_popup:hover {
+    opacity: 1;
+}
+
+.thumbnail_container {
+    width: 100%;
+    position: relative;
+    display: inline-block;
+    border-radius: 5px;
+}
+
+.preview_label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.preview_site {
+    width: 25px;
+    height: auto;
+}
+
+.preview_text {
+    font-family: HelNeuMed;
+    font-size: 19px;
+    text-decoration: none;
+    color: white;
+    margin: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.empty_container {
+    width: 100%;
+    position: relative;
+    display: inline-block;
+    border-radius: 5px;
+}
+
+.empty_bookmark {
+    width: 320px;
+    height: 240px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.empty_bookmark > p {
+    font-family: HelNeuMedIt;
+    font-size: 10vw;
+    color: white;
+}
+
+.thumbnail_card {
+    padding: 15px;
+    background-color: rgb(0,0,0);
+    border-radius: 5px;
+    opacity: .5;
+    transition: 0.25s opacity ease-in-out, 0.25s background-color ease-in-out, 0.25s border ease-in-out;
+    border: 1px transparent solid;
+}
+
+.thumbnail_card:hover {
+    opacity: 0.85;
+}
+
+.thumbnail_card:hover {
+    background-color: rgba(0,0,0,0.75);
+}
+
+a {
+    text-decoration: none;
+}
+
+.thumbnail_options {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.thumbnail_card:has(.remove_bookmark_popup:hover) {
+    background-color: rgba(255, 36, 36, .5);
+    /* border: 1px solid rgba(255, 36, 36, 1); */
+    border: 1px rgb(255, 36, 36) solid;
+}

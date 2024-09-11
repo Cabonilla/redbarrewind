@@ -152,8 +152,8 @@
         pointer-events: auto;
         display: grid;
         grid-template-columns: 2fr 1fr auto;
-        gap: 3vw; 
-        width: 95%;
+        gap: 1vw; 
+        width: 90%;
         height: .85vw;
         border-radius: 5vw;
         margin-bottom: .5vw;
@@ -240,6 +240,12 @@
         display: none;
       }
 
+      .simplebar-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
       .flash-effect {
         animation: flashAnimation .5s cubic-bezier(.25, 0, .3, 1) 2;
       }
@@ -262,6 +268,7 @@
 
   addPreloadStyle();
   addDialogStyles();
+  // pushBookmarksToPopup();
 
   function toggleOverlay() {
     const videoSizing = document.location.href.includes("youtube.com/watch")
@@ -537,7 +544,7 @@
     const tippyConfig = {
       arrow: false,
       animation: "scale",
-      theme: "translucent size",
+      theme: "translucent",
       inertia: true,
       appendTo: document.getElementById("jumpForm"),
       zIndex: 1000,
@@ -894,7 +901,9 @@
         clearTimeout(holdTimer);
 
         let inp = event.target.querySelector("#bookmark_input");
-        inp.style.pointerEvents = "none";
+        if (inp !== null) {
+          inp.style.pointerEvents = "none";
+        }
 
         if (holdCompleted) {
           event.preventDefault();
@@ -1046,6 +1055,12 @@
     });
   }
 
+  // function pushBookmarksToPopup() {
+  //   chrome.storage.local.get(['bookmarks'], function (result) {
+  //     gatherVideoInfo(result["bookmarks"]);
+  //   });
+  // }
+
   function addBookmarkEntry(videoUrl, time, description) {
     chrome.storage.local.get(['bookmarks'], function (result) {
       let bookmarks = result.bookmarks || {};
@@ -1137,7 +1152,7 @@
   }
 
   function manageBookmarkTime(timeEl) {
-    const timeInput = timeEl.value.split(":");
+    const timeInput = timeEl ? timeEl.value.split(":") : null;
     tl = timeInput.length;
 
     let hoursInput = 0,
@@ -1178,4 +1193,10 @@
       }
     });
   }
+
+//   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+//     if (message.type === 'runGatherVideoInfo') {
+//       pushBookmarksToPopup();
+//     }
+// });
 })();
