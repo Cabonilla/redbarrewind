@@ -249,34 +249,6 @@
       .flash-effect {
         animation: flashAnimation .5s cubic-bezier(.25, 0, .3, 1) 2;
       }
-      
-      
-#bookmark_list .simplebar-track.simplebar-vertical {
-    right: -100px; 
-    z-index: 1000; 
-    width: 12px;
-    background-color: rgba(0, 0, 0, 0.1); 
-}
-
-#bookmark_list .simplebar-scrollbar:before {
-    background-color: #ff0000;
-    border-radius: 10px;
-}
-
-#bookmark_list .simplebar-track.simplebar-vertical {
-    background: rgba(0, 0, 0, 0.1);
-
-      @keyframes flashAnimation {
-        0% {
-          background-color: ${colorList["nonhover"]}
-        }
-        50% {
-          background-color: ${colorList["danger"]}
-        }
-        100% {
-          background-color: ${colorList["nonhover"]}
-        }
-      }
     `;
 
     document.head.appendChild(style);
