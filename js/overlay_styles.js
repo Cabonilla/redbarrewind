@@ -17,10 +17,8 @@ let bookmark_style = `
 position: relative;
 inset: 1em !important;
 border: none;
-padding: 0;
 top: 0 !important;
 left: 0;
-margin: 0 !important;
 opacity: 1;
 outline: none;
 width: 40%;
@@ -34,6 +32,7 @@ flex-wrap: wrap;
 padding: 1vw 1vw 1vw 1vw;
 justify-content: center;
 align-items: center;
+overflow: hidden;
 `
 
 let bookmark_list = `
@@ -46,6 +45,7 @@ font-family: IBMPlexMono;
 font-size: .85vw;
 height: 100%;
 outline: none;
+position: relative;
 `
 
 let bookmark_entry = `

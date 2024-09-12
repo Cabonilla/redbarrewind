@@ -13,12 +13,15 @@ body {
     max-height: 600px;
 }
 
+#link_container {
+    display: none;
+}
+
 #video-previews {
     width: 320px;
     border-radius: 20px;
     display: flex;
     flex-direction: column;
-    align-content: center;
     padding: 10px;
     gap: 15px 0px;
 }
@@ -45,8 +48,8 @@ body {
 }
 
 .remove_bookmark_popup {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     background-color: #FF2424;
     border-radius: 100%;
     transition: opacity .25s cubic-bezier(.25, 0, .3, 1) !important;
@@ -83,7 +86,7 @@ body {
 
 .preview_text {
     font-family: HelNeuMed;
-    font-size: 19px;
+    font-size: 17px;
     text-decoration: none;
     color: white;
     margin: 0;
@@ -144,4 +147,27 @@ a {
     background-color: rgba(255, 36, 36, .5);
     /* border: 1px solid rgba(255, 36, 36, 1); */
     border: 1px rgb(255, 36, 36) solid;
+}
+
+#loader {
+    width: 315px;
+    height: 200px;
+    align-self: center;
+    background:
+        linear-gradient(0.25turn, transparent, #b9b9b9, transparent),
+        linear-gradient(#DDD, #DDD),
+        radial-gradient(38px circle at 19px 19px, #DDD 50%, transparent 51%),
+        linear-gradient(#DDD, #DDD);
+    background-color: #fff;
+    background-repeat: no-repeat;
+    background-size: 315px 200px, 315px 130px, 100px 100px, 225px 30px;
+    background-position: -315px 0, 0 0, 15px 140px, 65px 145px;
+    animation: loading 1.5s infinite;
+    filter: invert();
+}
+
+@keyframes loading {
+  to {
+    background-position: 315px 0, 0 0, 15px 140px, 65px 145px;
+  }
 }

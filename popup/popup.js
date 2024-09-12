@@ -2,9 +2,21 @@ const yt_logo = chrome.runtime.getURL("assets/yt.svg");
 const tw_logo = chrome.runtime.getURL("assets/tw.svg");
 const sp_logo = chrome.runtime.getURL("assets/yt.svg");
 
+loading = true
+
 document.addEventListener('DOMContentLoaded', () => {
-  pushBookmarksToPopup();
+  shiftView()
 });
+
+const loaderRender = () => {
+  const container = document.getElementById('video-previews');
+  container.innerHTML = `<span id="loader"></span>`
+}
+
+function shiftView() {
+  loaderRender()
+  pushBookmarksToPopup();
+}
 
 function pushBookmarksToPopup() {
   chrome.storage.local.get(['bookmarks'], function (result) {
@@ -15,7 +27,10 @@ function pushBookmarksToPopup() {
           if (chrome.runtime.lastError) {
             console.error('Error receiving response:', chrome.runtime.lastError.message);
           } else if (response && response.videoInfoArray) {
-            displayVideoPreviews(response.videoInfoArray);
+            loading = false
+            if (!loading) {
+              displayVideoPreviews(response.videoInfoArray);
+            }
           } else {
             console.error('No response or videoInfoArray was empty.');
           }
@@ -25,7 +40,7 @@ function pushBookmarksToPopup() {
   });
 }
 
-function displayLogo (link) {
+function displayLogo(link) {
   if (link.includes('youtube')) {
     return yt_logo
   } else if (link.includes('twitch')) {
@@ -96,13 +111,25 @@ function displayVideoPreviews(videoInfoArray) {
         });
       }
 
+
       container.appendChild(previewElement);
 
-      const imgElement = previewElement.querySelector('img');
-
-      imgElement.addEventListener('mouseenter', () => {
-        tippySingleton.setContent(video.title);
-        tippySingleton.setProps({ reference: imgElement });
+          // Initialize Tippy on elements with the 'preview_text' class
+      tippy('.preview_text', {
+        arrow: false,
+        animation: "shift-toward",
+        theme: "translucent custom",
+        placement: 'top',
+        inertia: true,
+        zIndex: 1000,
+        followCursor: true,
+        appendTo: document.getElementById("video-previews"),
+        trigger: 'mouseenter focus', // Default trigger on hover and focus
+        hideOnClick: false, // Prevent hiding when clicking on the element
+        duration: [200, 0], // Customize show and hide duration
+        content(reference) {
+          return reference.innerText; // Set tooltip content dynamically based on the hovered element
+        }
       });
     });
   } else {
@@ -118,30 +145,4 @@ function displayVideoPreviews(videoInfoArray) {
     // Append the preview element to the container
     container.appendChild(previewElement);
   }
-
 }
-
-const tippySingleton = tippy(document.createElement('div'), {
-  arrow: false,
-  animation: "shift-toward",
-  theme: "translucent custom",
-  placement: 'top',
-  inertia: true,
-  zIndex: 1000,
-  followCursor: true,
-  appendTo: document.getElementById("video-previews"),
-  content: '', // Initial empty content
-  trigger: 'manual', // Manual trigger to control when it's shown/hidden
-  hideOnClick: false, // Prevent the tooltip from staying visible after clicking
-  duration: [200, 0] // Customize show and hide duration: [showDuration, hideDuration]
-});
-
-// Add event listeners to manually control the singleton tooltip visibility
-document.addEventListener('mouseover', (event) => {
-  const target = event.target;
-  if (target.classList.contains('preview_text')) {
-    tippySingleton.show();
-  } else {
-    tippySingleton.hide();
-  }
-});

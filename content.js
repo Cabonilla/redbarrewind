@@ -250,6 +250,22 @@
         animation: flashAnimation .5s cubic-bezier(.25, 0, .3, 1) 2;
       }
       
+      
+#bookmark_list .simplebar-track.simplebar-vertical {
+    right: -100px; 
+    z-index: 1000; 
+    width: 12px;
+    background-color: rgba(0, 0, 0, 0.1); 
+}
+
+#bookmark_list .simplebar-scrollbar:before {
+    background-color: #ff0000;
+    border-radius: 10px;
+}
+
+#bookmark_list .simplebar-track.simplebar-vertical {
+    background: rgba(0, 0, 0, 0.1);
+
       @keyframes flashAnimation {
         0% {
           background-color: ${colorList["nonhover"]}
@@ -430,7 +446,7 @@
     </dialog>
   `;
 
-  console.log("CURRENT WEBSITE:", window.location.href)
+    console.log("CURRENT WEBSITE:", window.location.href)
 
     const popupElement = document.createElement("div");
     popupElement.id = "popup_container";
@@ -1083,7 +1099,7 @@
   function addMultipleEntries(newObj) {
     chrome.storage.local.get(['bookmarks'], function (result) {
       let bookmarks = result.bookmarks || {};
-  
+
       for (let [newUrl, newEntries] of Object.entries(newObj)) {
         if (!bookmarks[newUrl]) {
           bookmarks[newUrl] = newEntries;
@@ -1093,7 +1109,7 @@
           }
         }
       }
-  
+
       chrome.storage.local.set({ bookmarks: bookmarks }, function () {
         console.log('Updated storage:', bookmarks);
       });
@@ -1194,9 +1210,9 @@
     });
   }
 
-//   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-//     if (message.type === 'runGatherVideoInfo') {
-//       pushBookmarksToPopup();
-//     }
-// });
+  //   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  //     if (message.type === 'runGatherVideoInfo') {
+  //       pushBookmarksToPopup();
+  //     }
+  // });
 })();

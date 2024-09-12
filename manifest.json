@@ -46,7 +46,14 @@
         "assets/bookmarks.json",
         "assets/yt.svg",
         "assets/sp.svg",
-        "assets/tw.svg"
+        "assets/tw.svg",
+        "assets/howto/template1.png",
+        "assets/howto/template2.png",
+        "assets/howto/template3.png",
+        "assets/howto/template4.png",
+        "assets/howto/template5.png",
+        "assets/howto/template6.png",
+        "assets/howto/template7.png"
       ],
       "matches": ["https://*.youtube.com/*", "https://*.spotify.com/*", "https://*.redbarradio.net/*"]
     }
