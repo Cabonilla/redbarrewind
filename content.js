@@ -877,7 +877,7 @@
         }
 
         let inp = event.target.querySelector("#bookmark_time");
-        if (event.target === inp) {
+        if (event.target === el) {
           manageBookmarkTime(inp);
           simulateKeyPress();
         }
