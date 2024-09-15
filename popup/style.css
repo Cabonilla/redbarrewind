@@ -158,7 +158,7 @@ a {
         linear-gradient(#DDD, #DDD),
         radial-gradient(38px circle at 19px 19px, #DDD 50%, transparent 51%),
         linear-gradient(#DDD, #DDD);
-    background-color: #fff;
+    background-color: #ffffffc7;
     background-repeat: no-repeat;
     background-size: 315px 200px, 315px 130px, 100px 100px, 225px 30px;
     background-position: -315px 0, 0 0, 15px 140px, 65px 145px;

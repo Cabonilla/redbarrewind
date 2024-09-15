@@ -75,9 +75,9 @@ function displayVideoPreviews(videoInfoArray) {
       </a> 
     `;
 
-      const removeBookmark = previewElement.querySelector('.remove_bookmark_popup');
-      if (removeBookmark) {
-        removeBookmark.addEventListener("click", (event) => {
+      const removeBookmarkPopup = previewElement.querySelector('.remove_bookmark_popup');
+      if (removeBookmarkPopup) {
+        removeBookmarkPopup.addEventListener("click", (event) => {
           event.preventDefault()
           event.target.parentNode.parentNode.parentNode.parentNode.remove();
           removeEveryBookmarkEntry(video.url)

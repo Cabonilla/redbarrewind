@@ -153,7 +153,6 @@
         display: grid;
         grid-template-columns: 2fr 1fr auto;
         gap: 1vw; 
-        width: 90%;
         height: .85vw;
         border-radius: 5vw;
         margin-bottom: .5vw;
@@ -241,13 +240,23 @@
       }
 
       .simplebar-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        display: grid;
       }
 
       .flash-effect {
         animation: flashAnimation .5s cubic-bezier(.25, 0, .3, 1) 2;
+      }
+
+      @keyframes flashAnimation {
+        0% {
+          background-color: ${colorList["nonhover"]}
+        }
+        50% {
+          background-color: ${colorList["danger"]}
+        }
+        100% {
+          background-color: ${colorList["nonhover"]}
+        }
       }
     `;
 
@@ -303,8 +312,10 @@
         } else {
           modalMode = "close";
           popup.style.opacity = 0;
-          popupBook.style.opacity = 0;
-          popupBook.style.visibility = "hidden";
+          if (popupBook) {
+            popupBook.style.opacity = 0;
+            popupBook.style.visibility = "hidden";
+          }
           setTimeout(() => {
             popup[modalMode]();
           }, 250);
@@ -671,8 +682,10 @@
     const removeBookmark = newMouseElement.querySelector('.remove_bookmark');
     if (removeBookmark) {
       removeBookmark.addEventListener("click", (event) => {
+        console.log("APPEND MOUSE ELEMENT!")
         event.target.parentNode.remove()
         removeBookmarkEntry(window.location.href, timestamp)
+        event.preventDefault();
       });
     }
 
@@ -689,6 +702,7 @@
     }
 
     scrollToBottom(bookmarkList)
+    console.log(document.getElementsByClassName("simplebar-content")[0])
 
     const thisInput = document.getElementById('current_input')
 
@@ -752,7 +766,6 @@
     });
   }
 
-
   function appendTextElement(timestamp, description) {
     const newMouseElement = document.createElement('li');
     newMouseElement.className = 'mouse_element';
@@ -766,8 +779,10 @@
     const removeBookmark = newMouseElement.querySelector('.remove_bookmark');
     if (removeBookmark) {
       removeBookmark.addEventListener("click", (event) => {
+        console.log("APPEND TEXT ELEMENT!")
         event.target.parentNode.remove()
         removeBookmarkEntry(window.location.href, timestamp)
+        event.preventDefault();
       });
     }
 
@@ -845,23 +860,27 @@
 
     Array.from(document.getElementsByClassName("remove_bookmark")).forEach((remove) => {
       remove.addEventListener("click", (event) => {
-        let par = event.target.parentNode
-        par.remove();
-        removeBookmarkEntry(window.location.href, par.querySelector("#bookmark_time").value)
+        console.log("GENERATED DYNAMIC!")
+        event.currentTarget.parentNode.remove();
+        removeBookmarkEntry(window.location.href, event.currentTarget.parentNode.querySelector("#bookmark_time").value);
+        event.preventDefault();
       });
     });
 
     Array.from(document.getElementsByClassName("mouse_element")).forEach((el) => {
       el.addEventListener("click", (event) => {
-        if (holdCompleted) {
+        if (holdCompleted && event.target === el) {
+          console.log("MOUSE ELEMENT SHIT HAPPENING!")
           event.preventDefault();
           holdCompleted = false;
           return;
         }
 
         let inp = event.target.querySelector("#bookmark_time");
-        manageBookmarkTime(inp);
-        simulateKeyPress();
+        if (event.target === inp) {
+          manageBookmarkTime(inp);
+          simulateKeyPress();
+        }
       });
 
       let holdTimer;
@@ -923,6 +942,7 @@
                   if (!bookmarkTimeElement.querySelector("#bookmark_time")) {
                     applyFlashEffect(bookmarkTimeElement)
                   } else if (bookmarkTimeElement.querySelector("#bookmark_time").value === currTime) {
+                    console.log("FLASH HERE!")
                     applyFlashEffect(bookmarkTimeElement);
                   }
                 });
@@ -1109,7 +1129,7 @@
     const action = e.submitter.value;
     if (action === "jump") {
       const timeInput = document.getElementById("timeInput").value.split(":");
-      tl = timeInput.length;
+      tl = timeInput ? timeInput.length : 0;
 
       let hoursInput = 0,
         minutesInput = 0,
@@ -1141,7 +1161,7 @@
 
   function manageBookmarkTime(timeEl) {
     const timeInput = timeEl ? timeEl.value.split(":") : null;
-    tl = timeInput.length;
+    tl = timeInput ? timeInput.length : 0;
 
     let hoursInput = 0,
       minutesInput = 0,
