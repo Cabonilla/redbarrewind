@@ -18,6 +18,8 @@ function shiftView() {
   pushBookmarksToPopup();
 }
 
+//320px 240px, 285px 149px, 100px 100px, 236px 30px
+
 function pushBookmarksToPopup() {
   chrome.storage.local.get(['bookmarks'], function (result) {
     if (result.bookmarks) {
