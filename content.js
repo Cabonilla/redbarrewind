@@ -13,6 +13,9 @@
   let isMoveMutationObserverApplied = false;
   let spotifyOverlayBackground = true;
 
+  let savedScrollPos = 0; // Globally store the scroll position
+  let saveScrollState = false; // A flag to track whether to save the scroll position or not  
+
   let fontLinks = {
     DotGothic: `chrome-extension://${chrome.runtime.id}/assets/DotGothic.ttf`,
     Grischel: `chrome-extension://${chrome.runtime.id}/assets/Grischel.ttf`,
@@ -248,7 +251,7 @@
       }
 
       @keyframes flashAnimation {
-        0% {
+        0% {inp.style.pointerEvents = "auto";
           background-color: ${colorList["nonhover"]}
         }
         50% {
@@ -258,6 +261,10 @@
           background-color: ${colorList["nonhover"]}
         }
       }
+
+      .shrunk {
+        width: 96%;
+      }
     `;
 
     document.head.appendChild(style);
@@ -265,7 +272,6 @@
 
   addPreloadStyle();
   addDialogStyles();
-  // pushBookmarksToPopup();
 
   function toggleOverlay() {
     const videoSizing = document.location.href.includes("youtube.com/watch")
@@ -308,7 +314,6 @@
 
           const timeInput = document.getElementById("timeInput");
           timeInput && timeInput.focus();
-          // popupBook.style.display = "flex"
         } else {
           modalMode = "close";
           popup.style.opacity = 0;
@@ -479,7 +484,6 @@
     document.getElementById("bookmarkButton").addEventListener("click", () => {
       overlayBookmarkBool.value = true
       overlayBookmarkBool.open = true
-      // console.log("value: ", overlayBookmarkBool.value, "open: ", overlayBookmarkBool.open)
       toggleBookmark(overlayBookmarkBool.value)
     });
 
@@ -487,7 +491,6 @@
       if (event.target === document.getElementById("rr_bookmark")) {
         overlayBookmarkBool.value = false
         overlayBookmarkBool.open = false
-        // console.log("value: ", overlayBookmarkBool.value, "open: ", overlayBookmarkBool.open)
         toggleBookmark(overlayBookmarkBool.value)
       }
     });
@@ -591,9 +594,6 @@
           overlayBookmarkBool.value = true
         }
 
-        // console.log("overlay: ", overlayVisibleBool)
-        // console.log("value: ", overlayBookmarkBool.value, "open: ", overlayBookmarkBool.open)
-        // console.log(!overlayVisibleBool.value && overlayBookmarkBool.open)
         if (!overlayAppended) {
           appendOverlay();
           appendListeners();
@@ -612,7 +612,7 @@
         }
 
         toggleOverlay();
-        toggleBookmark(overlayBookmarkBool.value)
+        toggleBookmark(overlayBookmarkBool.value);
 
         document.getElementById("timeInput").value = "";
 
@@ -626,6 +626,7 @@
               generateDynamicHtmlFromObject(videoBookmarks)
             }
           });
+
         } else {
           console.error("chrome.storage API is not available.");
         }
@@ -682,7 +683,6 @@
     const removeBookmark = newMouseElement.querySelector('.remove_bookmark');
     if (removeBookmark) {
       removeBookmark.addEventListener("click", (event) => {
-        console.log("APPEND MOUSE ELEMENT!")
         event.target.parentNode.remove()
         removeBookmarkEntry(window.location.href, timestamp)
         event.preventDefault();
@@ -701,14 +701,13 @@
       console.error("No .mouse_element found and no parent list found.");
     }
 
-    scrollToBottom(bookmarkList)
-    console.log(document.getElementsByClassName("simplebar-content")[0])
-
     const thisInput = document.getElementById('current_input')
 
     prepInput(thisInput, timestamp)
 
     thisInput.focus();
+    scrollToBottom(bookmarkList)
+
 
     const cancelInput = newMouseElement.querySelector('.bookmark_input');
     if (removeBookmark) {
@@ -726,12 +725,14 @@
     let holdCompleted = false;
 
     function onHoldComplete(event) {
-      // console.log("Held for 2 seconds!");
-      // console.log(event.target)
       let inp = event.target.querySelector("#current_input");
-      inp.style.pointerEvents = "auto";
-      inp.disabled = false;
-      inp.focus();
+
+      if (inp) {
+        inp.style.pointerEvents = "auto";
+        inp.disabled = false;
+        inp.focus();
+      }
+
       prepInput(inp, inp.parentNode.querySelector("#current_time").value)
       holdCompleted = true;
       // console.log(inp)
@@ -804,15 +805,12 @@
     let holdCompleted = false;
 
     function onHoldComplete(event) {
-      // console.log("Held for 2 seconds!");
-      // console.log(event.target)
       let inp = event.target.querySelector("#current_input");
       inp.style.pointerEvents = "auto";
       inp.disabled = false;
       inp.focus();
       prepInput(inp, inp.parentNode.querySelector("#current_time").value)
       holdCompleted = true;
-      // console.log(inp)
       event.preventDefault();
     }
 
@@ -841,7 +839,7 @@
   }
 
   function generateDynamicHtmlFromObject(obj) {
-    let htmlContent = `<ul id="bookmark_list" style="${bookmark_list}" data-simplebar>`;
+    let htmlContent = `<ul id="bookmark_list" style="${bookmark_list}">`;
 
     if (obj) {
       Object.entries(obj).forEach(([timestamp, description]) => {
@@ -887,14 +885,12 @@
       let holdCompleted = false;
 
       function onHoldComplete(event) {
-        // console.log("Held for 2 seconds!");
         let inp = event.target.querySelector("#bookmark_input");
         inp.style.pointerEvents = "auto"
         inp.disabled = false;
         inp.focus();
         prepInput(inp, inp.parentNode.querySelector("#bookmark_time").value)
         holdCompleted = true;
-        // console.log(inp)
         event.preventDefault();
       }
 
@@ -923,6 +919,38 @@
         let inp = event.target.querySelector("#bookmark_input");
         inp.style.pointerEvents = "none"
       });
+    });
+
+    const bookmarkList = document.getElementById('bookmark_list');
+    if (bookmarkList) {
+      const simpleBarInstance = new SimpleBar(bookmarkList);
+      const scrollElement = simpleBarInstance.getScrollElement();
+
+      scrollElement.addEventListener('scroll', function () {
+        savedScrollPos = scrollElement.scrollTop;
+        console.log('Stored scroll position:', savedScrollPos);
+      });
+
+      if (overlayBookmarkBool.value) {
+        scrollElement.scrollTop = savedScrollPos;
+        console.log('Restored scroll position:', scrollElement.scrollTop);
+      }
+    }
+
+    const simplebarContent = document.querySelector(".simplebar-content");
+
+    function toggleShrunkClass() {
+      if (bookmarkList.classList.contains("simplebar-scrollable-y")) {
+        simplebarContent.classList.add("shrunk");
+      } else {
+        simplebarContent.classList.remove("shrunk");
+      }
+    }
+
+    const observer = new MutationObserver(toggleShrunkClass);
+    observer.observe(bookmarkList, {
+      attributes: true,
+      attributeFilter: ["class"]
     });
 
     let add = document.getElementById("add_bookmark")
@@ -977,28 +1005,6 @@
           addMultipleEntries(textObj)
 
           for (let [key, value] of Object.entries(textObj)) {
-            // getBookmarksForVideo(key, (entry) => {
-            //   if (entry && key == window.location.href) {
-            //     for (let [time, desc] of Object.entries(value)) {
-            //       if (!(time in entry)) {
-            //         appendTextElement(time, desc)
-            //         addBookmarkEntry(key, time, desc)
-            //         console.log("Additional Entry: ", key, time, desc)
-            //       } else {
-            //         console.log("Collision Entry: ", key, time, desc)
-            //         let replace = document.querySelector(`.mouse_element input[value="${time}"]`)
-            //         replace.parentElement.querySelector('#bookmark_input').value = desc
-            //         addBookmarkEntry(key, time, desc)
-            //       }
-            //     }
-            //   } else {
-            //     for (let [time, desc] of Object.entries(value)) {
-            //       console.log("New Entry: ", key, time, desc)
-            //       addBookmarkEntry(key, time, desc)
-            //     }
-            //   }
-            // })
-
             if (key == window.location.href) {
               for (let [time, desc] of Object.entries(value)) {
                 let replace = document.querySelector(`.mouse_element input[value="${time}"]`)
@@ -1011,26 +1017,6 @@
                 }
               }
             }
-
-            // if (key == window.location.href) {
-            //   for (let [time, desc] of Object.entries(value)) {
-            //     let replace = document.querySelector(`.mouse_element input[value="${time}"]`)
-            //     if (!replace) {
-            //       appendTextElement(time, desc)
-            //       addBookmarkEntry(key, time, desc)
-            //       console.log("Additional Entry: ", key, time, desc)
-            //     } else {
-            //       console.log("Collision Entry: ", key, time, desc)
-            //       replace.parentElement.querySelector('#bookmark_input').value = desc
-            //       addBookmarkEntry(key, time, desc)
-            //     }
-            //   }
-            // } else {
-            //   for (let [time, desc] of Object.entries(value)) {
-            //     console.log("New Entry: ", key, time, desc)
-            //     addBookmarkEntry(key, time, desc)
-            //   }
-            // }
           }
         };
         reader.readAsText(file);
@@ -1062,12 +1048,6 @@
       callback(bookmarks[videoUrl] || null);
     });
   }
-
-  // function pushBookmarksToPopup() {
-  //   chrome.storage.local.get(['bookmarks'], function (result) {
-  //     gatherVideoInfo(result["bookmarks"]);
-  //   });
-  // }
 
   function addBookmarkEntry(videoUrl, time, description) {
     chrome.storage.local.get(['bookmarks'], function (result) {
@@ -1191,7 +1171,6 @@
     thisInput.addEventListener('blur', function () {
       this.setAttribute('disabled', 'on');
       addBookmarkEntry(window.location.href, timestamp, this.value)
-      // console.log("NO BLUR!")
     });
 
     thisInput.addEventListener('keydown', function (event) {
@@ -1201,10 +1180,4 @@
       }
     });
   }
-
-  //   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  //     if (message.type === 'runGatherVideoInfo') {
-  //       pushBookmarksToPopup();
-  //     }
-  // });
 })();

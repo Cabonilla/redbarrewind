@@ -150,8 +150,8 @@ a {
 }
 
 #loader {
-    width: 315px;
-    height: 200px;
+    width: 320px;
+    height: 240px;
     align-self: center;
     background:
         linear-gradient(0.25turn, transparent, #b9b9b9, transparent),
@@ -160,14 +160,14 @@ a {
         linear-gradient(#DDD, #DDD);
     background-color: #ffffffc7;
     background-repeat: no-repeat;
-    background-size: 315px 200px, 315px 130px, 100px 100px, 225px 30px;
-    background-position: -315px 0, 0 0, 15px 140px, 65px 145px;
+    background-size: 320px 240px, 320px 160px, 100px 100px, 240px 30px;
+    background-position: -320px 0, 0 0, 15px 181px, 65px 185px;
     animation: loading 1.5s infinite;
     filter: invert();
 }
 
 @keyframes loading {
   to {
-    background-position: 315px 0, 0 0, 15px 140px, 65px 145px;
+    background-position: 320px 0, 0 0, 15px 181px, 65px 185px;
   }
 }
