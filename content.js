@@ -45,7 +45,7 @@
     const style = document.createElement("style");
     const colorList = {
       "nonhover": "rgba(38, 42, 43, 0.25);",
-      "hover": "rgba(141, 141, 141, 0.25);",
+      "hover": "rgba(103, 103, 103, 0.25);",
       "danger": "rgba(182, 0, 0, 0.25);"
     }
     style.textContent = `
