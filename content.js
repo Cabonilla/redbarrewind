@@ -13,8 +13,7 @@
   let isMoveMutationObserverApplied = false;
   let spotifyOverlayBackground = true;
 
-  let savedScrollPos = 0; // Globally store the scroll position
-  let saveScrollState = false; // A flag to track whether to save the scroll position or not  
+  let savedScrollPos = 0; 
 
   let fontLinks = {
     DotGothic: `chrome-extension://${chrome.runtime.id}/assets/DotGothic.ttf`,
@@ -46,7 +45,7 @@
     const style = document.createElement("style");
     const colorList = {
       "nonhover": "rgba(38, 42, 43, 0.25);",
-      "hover": "rgba(60, 65, 68, 0.25);",
+      "hover": "rgba(141, 141, 141, 0.25);",
       "danger": "rgba(182, 0, 0, 0.25);"
     }
     style.textContent = `
@@ -151,7 +150,7 @@
       }
 
       .mouse_element {
-        background-color: rgba(38, 42, 43, 0.25);
+        background-color: rgba(14, 14, 14, 0.25);
         pointer-events: auto;
         display: grid;
         grid-template-columns: 2fr 1fr auto;
@@ -176,7 +175,7 @@
       }
 
       .mouse_element:hover .bookmark_input:disabled {
-        opacity: 0.85;
+        opacity: 0.95;
         color: #fff;
       }
 
@@ -206,7 +205,7 @@
       }
 
       #add_bookmark.dragover #add_logo {
-        opacity: .85;
+        opacity: .95;
         pointer-events: none;
       }
 
@@ -215,7 +214,7 @@
       }
 
       #add_bookmark:hover #add_logo {
-        opacity: .85;
+        opacity: .95;
       }
 
       #bookmark_list {
