@@ -44,7 +44,7 @@
   function addDialogStyles() {
     const style = document.createElement("style");
     const colorList = {
-      "nonhover": "rgba(38, 42, 43, 0.25);",
+      "nonhover": "rgba(14, 14, 14, 0.25);",
       "hover": "rgba(103, 103, 103, 0.25);",
       "danger": "rgba(182, 0, 0, 0.25);"
     }
@@ -992,6 +992,26 @@
       event.target.classList.remove('dragover');
     });
 
+    const createTippyInstance = (selector) => {
+      return tippy(selector, {
+        content: "Added!",
+        arrow: false,
+        animation: "fade",
+        theme: "translucent size",
+        duration: 200,
+        trigger: '', 
+        onShow(instance) {
+          setTimeout(() => {
+            instance.hide();
+          }, 1000); // Hide after 1 second
+        },
+        appendTo: document.getElementsByClassName("simplebar-content")[0], // Adjust this if necessary
+      });
+    };
+    
+    // Create the Tippy instance
+    const tippyInstance = createTippyInstance("#add_bookmark")[0];
+
     add.addEventListener('drop', (event) => {
       event.preventDefault();
       add.classList.remove('dragover');
@@ -1002,6 +1022,8 @@
         reader.onload = function (e) {
           let textObj = convertToObj(e.target.result)
           addMultipleEntries(textObj)
+
+          tippyInstance.show();
 
           for (let [key, value] of Object.entries(textObj)) {
             if (key == window.location.href) {

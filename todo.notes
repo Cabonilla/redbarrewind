@@ -2,7 +2,7 @@
 Goals:
 [√] Finish RR working on redbarradio.net site. 
 [√] Basic testing on unversality. 
-[!] Implement keyboard commands within modal window. (+5 time, -5 time)
+[x] Implement keyboard commands within modal window. (+5 time, -5 time)
 TODO:
 [√] Open RR over video on redbarradio.net and sustain with no errors.
 [√] Get keyboard command working.
@@ -42,14 +42,15 @@ Planning Log:
 [2024-09-02]
 Goals:
 [√] Finish drag and drag feature, including both local storage addition and render. 
-[ ] Animate the addition and subtraction of time entries.
+[x] Animate the addition and subtraction of time entries.
 TODO:
 Planning Log:
 
 [2024-09-04]
 Goals:
-[ ] Add overall bookmark viewing.
-[ ] Add download function for bookmarks.
+[√] Add overall bookmark viewing.
+[ ] Add download function (export) for bookmarks.
+[ ] Add feedback for .txt import.
 TODO:
 Planning Log:
 
