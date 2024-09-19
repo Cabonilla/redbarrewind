@@ -28,6 +28,7 @@ function pushBookmarksToPopup() {
         function (response) {
           if (chrome.runtime.lastError) {
             console.error('Error receiving response:', chrome.runtime.lastError.message);
+            emptyBookmarks()
           } else if (response && response.videoInfoArray) {
             loading = false
             if (!loading) {
@@ -35,6 +36,7 @@ function pushBookmarksToPopup() {
             }
           } else {
             console.error('No response or videoInfoArray was empty.');
+            emptyBookmarks()
           }
         }
       );
@@ -52,11 +54,23 @@ function displayLogo(link) {
   }
 }
 
+function emptyBookmarks() {
+  const container = document.getElementById('video-previews');
+  container.innerHTML = '';
+  const previewElement = document.createElement('div');
+  previewElement.innerHTML = `
+  <div class="empty_container">
+    <div class="empty_bookmark">
+      <p>No bookmarks.</p>
+    </div>
+  </div>`;
+
+  container.appendChild(previewElement);
+}
+
 function displayVideoPreviews(videoInfoArray) {
   const container = document.getElementById('video-previews');
   container.innerHTML = '';
-
-  console.log(videoInfoArray.length)
 
   if (videoInfoArray.length !== 0) {
     videoInfoArray.forEach(video => {
@@ -68,7 +82,7 @@ function displayVideoPreviews(videoInfoArray) {
             <div class="remove_bookmark_popup"></div>
               <img class="preview_image" src="${video.preview}" alt="${video.title}">
               <div class="preview_label">
-                <img class="preview_site" src=${displayLogo(video.url)}/>
+                <img class="preview_site" src="${displayLogo(video.url)}"/>
                 <p class="preview_text" > ${video.title} </p>
               </div>
           </div>
@@ -86,7 +100,6 @@ function displayVideoPreviews(videoInfoArray) {
         });
       }
 
-
       function removeEveryBookmarkEntry(videoUrl) {
         chrome.storage.local.get(['bookmarks'], function (result) {
           let bookmarks = result.bookmarks || {};
@@ -96,17 +109,7 @@ function displayVideoPreviews(videoInfoArray) {
 
             chrome.storage.local.set({ bookmarks: bookmarks }, function () {
               if (Object.keys(bookmarks).length === 0) {
-                console.log(bookmarks.length)
-                const container = document.getElementById('video-previews');
-                const previewElement = document.createElement('div');
-                previewElement.innerHTML = `
-                <div class="empty_container">
-                  <div class="empty_bookmark">
-                    <p>No bookmarks.</p>
-                  </div>
-                </div>`;
-
-                container.appendChild(previewElement);
+                emptyBookmarks()
               }
             });
           }
@@ -116,7 +119,7 @@ function displayVideoPreviews(videoInfoArray) {
 
       container.appendChild(previewElement);
 
-          // Initialize Tippy on elements with the 'preview_text' class
+      // Initialize Tippy on elements with the 'preview_text' class
       tippy('.preview_text', {
         arrow: false,
         animation: "shift-toward",
