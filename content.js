@@ -1,4 +1,6 @@
 (function () {
+  gsap.registerPlugin(ScrollToPlugin);
+
   const OSName = window.navigator.userAgent.includes("Mac")
     ? "Mac/iOS"
     : "Windows/Linux";
@@ -13,7 +15,7 @@
   let isMoveMutationObserverApplied = false;
   let spotifyOverlayBackground = true;
 
-  let savedScrollPos = 0; 
+  let savedScrollPos = 0;
 
   let fontLinks = {
     DotGothic: `chrome-extension://${chrome.runtime.id}/assets/DotGothic.ttf`,
@@ -153,7 +155,7 @@
         background-color: rgba(14, 14, 14, 0.25);
         pointer-events: auto;
         display: grid;
-        grid-template-columns: 2fr 1fr auto;
+        grid-template-columns: 3fr 1fr auto;
         gap: 1vw; 
         height: .85vw;
         border-radius: 5vw;
@@ -263,6 +265,10 @@
 
       .shrunk {
         width: 96%;
+      }
+
+      #bookmark_time, #current_time {
+        text-align: center;
       }
     `;
 
@@ -432,8 +438,6 @@
       </div>
     </dialog>
   `;
-
-    console.log("CURRENT WEBSITE:", window.location.href)
 
     const popupElement = document.createElement("div");
     popupElement.id = "popup_container";
@@ -670,6 +674,7 @@
   }
 
   function appendMouseElement(timestamp) {
+    let isAnimating = false;
     const newMouseElement = document.createElement('li');
     newMouseElement.className = 'mouse_element';
 
@@ -707,7 +712,6 @@
     thisInput.focus();
     scrollToBottom(bookmarkList)
 
-
     const cancelInput = newMouseElement.querySelector('.bookmark_input');
     if (removeBookmark) {
       cancelInput.addEventListener('blur', function (event) {
@@ -724,22 +728,73 @@
     let holdCompleted = false;
 
     function onHoldComplete(event) {
+      console.log("HELD DOWN!")
+      const firstInput = newMouseElement.querySelector("input.bookmark_input");
+      gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
+      isAnimating = false;
+      firstInput.scrollLeft = 0;
+      firstInput.style.textOverflow = 'ellipsis';
+
       let inp = event.target.querySelector("#current_input");
 
       if (inp) {
-        inp.style.pointerEvents = "auto";
+        // inp.style.pointerEvents = "auto";
         inp.disabled = false;
         inp.focus();
+        inp.setSelectionRange(0, 0);
+        inp.scrollLeft = 0; // Reset scroll position to the start
       }
 
       prepInput(inp, inp.parentNode.querySelector("#current_time").value)
+
+      inp.setSelectionRange(0, 0);
       holdCompleted = true;
-      // console.log(inp)
       event.preventDefault();
     }
 
+    newMouseElement.addEventListener("mouseover", (event) => {
+      // Find the first input element inside the .mouse_element
+      const firstInput = newMouseElement.querySelector("input.bookmark_input");
+
+      if (firstInput && firstInput.disabled) {
+        const isOverflowing = firstInput.scrollWidth > firstInput.clientWidth;
+        if (isOverflowing && !isAnimating) {
+          isAnimating = true; // Mark animation as running
+          // Calculate how much to scroll by (input's full scroll width)
+          firstInput.style.textOverflow = 'clip';
+
+          const scrollDistance = firstInput.scrollWidth - firstInput.clientWidth;
+          const duration = scrollDistance / 75; // Adjust scroll speed (50px per second)
+
+          gsap.timeline({ onComplete: () => isAnimating = false })
+            .to(firstInput, {
+              scrollTo: { x: scrollDistance }, // Scroll to the right end
+              duration: duration,
+              ease: "linear",
+            })
+        }
+      }
+
+      event.preventDefault();
+    });
+
+    newMouseElement.addEventListener("mouseout", () => {
+      const firstInput = newMouseElement.querySelector("input.bookmark_input");
+      gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
+      isAnimating = false;
+      firstInput.scrollLeft = 0; // Reset scroll position to the start
+      firstInput.style.textOverflow = 'ellipsis';
+    });
+
     newMouseElement.addEventListener("mousedown", (event) => {
       holdCompleted = false;
+
+      clearTimeout(holdTimer);
+
+      const firstInput = newMouseElement.querySelector("input.bookmark_input");
+      gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
+      isAnimating = false;
+
       holdTimer = setTimeout(() => onHoldComplete(event), 1000);
     });
 
@@ -767,6 +822,7 @@
   }
 
   function appendTextElement(timestamp, description) {
+    let isAnimating = false;
     const newMouseElement = document.createElement('li');
     newMouseElement.className = 'mouse_element';
 
@@ -779,7 +835,6 @@
     const removeBookmark = newMouseElement.querySelector('.remove_bookmark');
     if (removeBookmark) {
       removeBookmark.addEventListener("click", (event) => {
-        console.log("APPEND TEXT ELEMENT!")
         event.target.parentNode.remove()
         removeBookmarkEntry(window.location.href, timestamp)
         event.preventDefault();
@@ -804,17 +859,73 @@
     let holdCompleted = false;
 
     function onHoldComplete(event) {
-      let inp = event.target.querySelector("#current_input");
-      inp.style.pointerEvents = "auto";
-      inp.disabled = false;
-      inp.focus();
-      prepInput(inp, inp.parentNode.querySelector("#current_time").value)
+      const firstInput = newMouseElement.querySelector("input.bookmark_input");
+      gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
+      isAnimating = false;
+      firstInput.scrollLeft = 0;
+      firstInput.style.textOverflow = 'ellipsis';
+
+      if (firstInput) {
+        // inp.style.pointerEvents = "auto"
+        firstInput.disabled = false;
+
+        firstInput.focus();
+        firstInput.setSelectionRange(0, 0);
+        firstInput.scrollLeft = 0; // Reset scroll position to the start
+      }
+
+      console.log(firstInput)
+
+      prepInput(firstInput, firstInput.parentNode.querySelector("#current_time").value)
       holdCompleted = true;
       event.preventDefault();
     }
 
+    newMouseElement.addEventListener("mouseover", (event) => {
+      // Find the first input element inside the .mouse_element
+      const firstInput = newMouseElement.querySelector("input.bookmark_input");
+
+      if (firstInput && firstInput.disabled) {
+        const isOverflowing = firstInput.scrollWidth > firstInput.clientWidth;
+        if (isOverflowing && !isAnimating) {
+          isAnimating = true; // Mark animation as running
+          // Calculate how much to scroll by (input's full scroll width)
+          firstInput.style.textOverflow = 'clip';
+
+          const scrollDistance = firstInput.scrollWidth - firstInput.clientWidth;
+          const duration = scrollDistance / 75; // Adjust scroll speed (50px per second)
+
+          gsap.timeline({ onComplete: () => isAnimating = false })
+            .to(firstInput, {
+              scrollTo: { x: scrollDistance }, // Scroll to the right end
+              duration: duration,
+              ease: "linear",
+            })
+        }
+      }
+
+      event.preventDefault();
+    });
+
+    newMouseElement.addEventListener("mouseout", () => {
+      const firstInput = newMouseElement.querySelector("input.bookmark_input");
+      gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
+      isAnimating = false;
+      firstInput.scrollLeft = 0; // Reset scroll position to the start
+      firstInput.style.textOverflow = 'ellipsis';
+    });
+
     newMouseElement.addEventListener("mousedown", (event) => {
       holdCompleted = false;
+
+      clearTimeout(holdTimer);
+
+      const firstInput = newMouseElement.querySelector("input.bookmark_input");
+      gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
+      isAnimating = false;
+      // firstInput.scrollLeft = 0; 
+      // firstInput.style.textOverflow = 'ellipsis';
+
       holdTimer = setTimeout(() => onHoldComplete(event), 1000);
     });
 
@@ -857,17 +968,57 @@
 
     Array.from(document.getElementsByClassName("remove_bookmark")).forEach((remove) => {
       remove.addEventListener("click", (event) => {
-        console.log("GENERATED DYNAMIC!")
         event.currentTarget.parentNode.remove();
         removeBookmarkEntry(window.location.href, event.currentTarget.parentNode.querySelector("#bookmark_time").value);
         event.preventDefault();
       });
     });
 
+    Array.from(document.getElementsByClassName("bookmark_input")).forEach((remove) => {
+      remove.addEventListener("mouseover", (event) => {
+        console.log(event.currentTarget);
+        event.preventDefault();
+      });
+    });
+
     Array.from(document.getElementsByClassName("mouse_element")).forEach((el) => {
+      let isAnimating = false;
+      el.addEventListener("mouseover", (event) => {
+        // Find the first input element inside the .mouse_element
+        const firstInput = el.querySelector("input.bookmark_input");
+
+        if (firstInput && firstInput.disabled) {
+          const isOverflowing = firstInput.scrollWidth > firstInput.clientWidth;
+          if (isOverflowing && !isAnimating) {
+            isAnimating = true; // Mark animation as running
+            // Calculate how much to scroll by (input's full scroll width)
+            firstInput.style.textOverflow = 'clip';
+
+            const scrollDistance = firstInput.scrollWidth - firstInput.clientWidth;
+            const duration = scrollDistance / 75; // Adjust scroll speed (50px per second)
+
+            gsap.timeline({ onComplete: () => isAnimating = false })
+              .to(firstInput, {
+                scrollTo: { x: scrollDistance }, // Scroll to the right end
+                duration: duration,
+                ease: "linear",
+              })
+          }
+        }
+
+        event.preventDefault();
+      });
+
+      el.addEventListener("mouseout", () => {
+        const firstInput = el.querySelector("input.bookmark_input");
+        gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
+        isAnimating = false;
+        firstInput.scrollLeft = 0; // Reset scroll position to the start
+        firstInput.style.textOverflow = 'ellipsis';
+      });
+
       el.addEventListener("click", (event) => {
         if (holdCompleted && event.target === el) {
-          console.log("MOUSE ELEMENT SHIT HAPPENING!")
           event.preventDefault();
           holdCompleted = false;
           return;
@@ -884,10 +1035,23 @@
       let holdCompleted = false;
 
       function onHoldComplete(event) {
+        const firstInput = el.querySelector("input.bookmark_input");
+        gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
+        isAnimating = false;
+        firstInput.scrollLeft = 0;
+        firstInput.style.textOverflow = 'ellipsis';
+
         let inp = event.target.querySelector("#bookmark_input");
-        inp.style.pointerEvents = "auto"
-        inp.disabled = false;
-        inp.focus();
+
+        if (inp) {
+          // inp.style.pointerEvents = "auto"
+          inp.disabled = false;
+
+          inp.focus();
+          inp.setSelectionRange(0, 0);
+        }
+
+
         prepInput(inp, inp.parentNode.querySelector("#bookmark_time").value)
         holdCompleted = true;
         event.preventDefault();
@@ -896,6 +1060,13 @@
       el.addEventListener("mousedown", (event) => {
         holdCompleted = false;
         clearTimeout(holdTimer);
+
+        const firstInput = el.querySelector("input.bookmark_input");
+        gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
+        isAnimating = false;
+        // firstInput.scrollLeft = 0; 
+        // firstInput.style.textOverflow = 'ellipsis';
+
         holdTimer = setTimeout(() => onHoldComplete(event), 1000);
       });
 
@@ -905,6 +1076,7 @@
         let inp = event.target.querySelector("#bookmark_input");
         if (inp !== null) {
           inp.style.pointerEvents = "none";
+          event.preventDefault();
         }
 
         if (holdCompleted) {
@@ -969,7 +1141,6 @@
                   if (!bookmarkTimeElement.querySelector("#bookmark_time")) {
                     applyFlashEffect(bookmarkTimeElement)
                   } else if (bookmarkTimeElement.querySelector("#bookmark_time").value === currTime) {
-                    console.log("FLASH HERE!")
                     applyFlashEffect(bookmarkTimeElement);
                   }
                 });
@@ -995,11 +1166,12 @@
     const createTippyInstance = (selector) => {
       return tippy(selector, {
         content: "Added",
+        placement: "top",
         arrow: false,
-        animation: "fade",
+        animation: "scale",
         theme: "translucent size",
         duration: 200,
-        trigger: '', 
+        trigger: '',
         onShow(instance) {
           setTimeout(() => {
             instance.hide();
@@ -1008,7 +1180,7 @@
         appendTo: document.getElementsByClassName("simplebar-content")[0], // Adjust this if necessary
       });
     };
-    
+
     // Create the Tippy instance
     const tippyInstance = createTippyInstance("#add_bookmark")[0];
 
@@ -1042,7 +1214,7 @@
         };
         reader.readAsText(file);
       } else {
-        alert("Please drop a valid text file.");
+        applyFlashEffect(add);
       }
     });
   }
