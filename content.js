@@ -994,7 +994,7 @@
 
     const createTippyInstance = (selector) => {
       return tippy(selector, {
-        content: "Added!",
+        content: "Added",
         arrow: false,
         animation: "fade",
         theme: "translucent size",
