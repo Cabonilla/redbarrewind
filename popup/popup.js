@@ -28,7 +28,6 @@ function pushBookmarksToPopup() {
         function (response) {
           if (chrome.runtime.lastError) {
             console.error('Error receiving response:', chrome.runtime.lastError.message);
-            emptyBookmarks()
           } else if (response && response.videoInfoArray) {
             loading = false
             if (!loading) {

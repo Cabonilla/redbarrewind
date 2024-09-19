@@ -44,10 +44,16 @@ Enter your label into the input that appears and press ENTER or click outside of
 
 The + button also allows users to enter their bookmark entries automatically via test file. Create a text file with the following ***example*** format:
 
-<pre>https://www.youtube.com/watch?v=HRd5NIm67L8 
+<pre>Redbar S21E26: Joe Rogan’s LIVE Netflix Special / We found Joe Rogan’s #1 Comedy Fan...
+https://www.youtube.com/watch?v=HRd5NIm67L8
+00:00:00 - Final collision test.
+00:02:00 - Something 2.
+Xiaolin | Boiler Room: Singapore
+https://www.youtube.com/watch?v=Q00AK7mUlT4
 00:12:00 - He is eating.
 00:15:00 - He is not eating.
-https://www.youtube.com/watch?v=dHsCb-dDGnU
+Self-Extracting Executables for Hackers
+https://www.youtube.com/watch?v=mAond4BkCfM
 01:12:00 - Something is happening.
 02:12:08 - Something else happens.</pre>
 
