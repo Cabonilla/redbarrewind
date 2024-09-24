@@ -14,7 +14,6 @@ transition: opacity .25s cubic-bezier(.25, 0, .3, 1) !important;
 `;
 
 let bookmark_style = `
-position: relative;
 inset: 1em !important;
 border: none;
 top: 0 !important;

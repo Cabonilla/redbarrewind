@@ -730,7 +730,7 @@
     function onHoldComplete(event) {
       console.log("HELD DOWN!")
       const firstInput = newMouseElement.querySelector("input.bookmark_input");
-      gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
+      // gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
       isAnimating = false;
       firstInput.scrollLeft = 0;
       firstInput.style.textOverflow = 'ellipsis';
@@ -762,16 +762,7 @@
           isAnimating = true; // Mark animation as running
           // Calculate how much to scroll by (input's full scroll width)
           firstInput.style.textOverflow = 'clip';
-
-          const scrollDistance = firstInput.scrollWidth - firstInput.clientWidth;
-          const duration = scrollDistance / 75; // Adjust scroll speed (50px per second)
-
-          gsap.timeline({ onComplete: () => isAnimating = false })
-            .to(firstInput, {
-              scrollTo: { x: scrollDistance }, // Scroll to the right end
-              duration: duration,
-              ease: "linear",
-            })
+          horizontalLoopInput(firstInput, { speed: 25 });  // Start marquee effect
         }
       }
 
@@ -860,7 +851,7 @@
 
     function onHoldComplete(event) {
       const firstInput = newMouseElement.querySelector("input.bookmark_input");
-      gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
+      // gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
       isAnimating = false;
       firstInput.scrollLeft = 0;
       firstInput.style.textOverflow = 'ellipsis';
@@ -892,15 +883,7 @@
           // Calculate how much to scroll by (input's full scroll width)
           firstInput.style.textOverflow = 'clip';
 
-          const scrollDistance = firstInput.scrollWidth - firstInput.clientWidth;
-          const duration = scrollDistance / 75; // Adjust scroll speed (50px per second)
-
-          gsap.timeline({ onComplete: () => isAnimating = false })
-            .to(firstInput, {
-              scrollTo: { x: scrollDistance }, // Scroll to the right end
-              duration: duration,
-              ease: "linear",
-            })
+          horizontalLoopInput(firstInput, { speed: 25 });  // Start marquee effect
         }
       }
 
@@ -923,8 +906,8 @@
       const firstInput = newMouseElement.querySelector("input.bookmark_input");
       gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
       isAnimating = false;
-      // firstInput.scrollLeft = 0; 
-      // firstInput.style.textOverflow = 'ellipsis';
+      firstInput.scrollLeft = 0;
+      firstInput.style.textOverflow = 'ellipsis';
 
       holdTimer = setTimeout(() => onHoldComplete(event), 1000);
     });
@@ -946,6 +929,25 @@
       let inp = event.target.querySelector("#current_input");
       inp.style.pointerEvents = "none";
     });
+  }
+
+  let isAnimating = false;
+
+  function horizontalLoopInput(input, config) {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    config = config || {};
+
+    const scrollDistance = input.scrollWidth - input.clientWidth;
+    const duration = scrollDistance / (config.speed || 50);
+
+    gsap.timeline({ onComplete: () => isAnimating = false })
+      .to(input, {
+        scrollTo: { x: scrollDistance },
+        duration: duration,
+        ease: "none",
+      })
   }
 
   function generateDynamicHtmlFromObject(obj) {
@@ -974,17 +976,12 @@
       });
     });
 
-    Array.from(document.getElementsByClassName("bookmark_input")).forEach((remove) => {
-      remove.addEventListener("mouseover", (event) => {
-        console.log(event.currentTarget);
-        event.preventDefault();
-      });
-    });
-
     Array.from(document.getElementsByClassName("mouse_element")).forEach((el) => {
       let isAnimating = false;
       el.addEventListener("mouseover", (event) => {
         // Find the first input element inside the .mouse_element
+        // event.preventDefault();
+
         const firstInput = el.querySelector("input.bookmark_input");
 
         if (firstInput && firstInput.disabled) {
@@ -994,15 +991,7 @@
             // Calculate how much to scroll by (input's full scroll width)
             firstInput.style.textOverflow = 'clip';
 
-            const scrollDistance = firstInput.scrollWidth - firstInput.clientWidth;
-            const duration = scrollDistance / 75; // Adjust scroll speed (50px per second)
-
-            gsap.timeline({ onComplete: () => isAnimating = false })
-              .to(firstInput, {
-                scrollTo: { x: scrollDistance }, // Scroll to the right end
-                duration: duration,
-                ease: "linear",
-              })
+            horizontalLoopInput(firstInput, { speed: 50 });  // Start marquee effect
           }
         }
 
@@ -1051,7 +1040,6 @@
           inp.setSelectionRange(0, 0);
         }
 
-
         prepInput(inp, inp.parentNode.querySelector("#bookmark_time").value)
         holdCompleted = true;
         event.preventDefault();
@@ -1064,8 +1052,8 @@
         const firstInput = el.querySelector("input.bookmark_input");
         gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
         isAnimating = false;
-        // firstInput.scrollLeft = 0; 
-        // firstInput.style.textOverflow = 'ellipsis';
+        firstInput.scrollLeft = 0;
+        firstInput.style.textOverflow = 'ellipsis';
 
         holdTimer = setTimeout(() => onHoldComplete(event), 1000);
       });
