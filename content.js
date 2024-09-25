@@ -16,6 +16,7 @@
   let spotifyOverlayBackground = true;
 
   let savedScrollPos = 0;
+  let isAnimating = false;
 
   let fontLinks = {
     DotGothic: `chrome-extension://${chrome.runtime.id}/assets/DotGothic.ttf`,
@@ -674,7 +675,7 @@
   }
 
   function appendMouseElement(timestamp) {
-    let isAnimating = false;
+    isAnimating = false;
     const newMouseElement = document.createElement('li');
     newMouseElement.className = 'mouse_element';
 
@@ -684,7 +685,10 @@
         <div class="remove_bookmark" style="${remove_bookmark}"></div>
       `;
 
+    const firstInput = newMouseElement.querySelector("input.bookmark_input");
+
     const removeBookmark = newMouseElement.querySelector('.remove_bookmark');
+
     if (removeBookmark) {
       removeBookmark.addEventListener("click", (event) => {
         event.target.parentNode.remove()
@@ -699,8 +703,10 @@
 
     if (lastMouseElement) {
       lastMouseElement.parentNode.insertBefore(newMouseElement, lastMouseElement);
+      // debugger;
     } else if (bookmarkList) {
       bookmarkList.appendChild(newMouseElement);
+      // debugger;
     } else {
       console.error("No .mouse_element found and no parent list found.");
     }
@@ -709,8 +715,8 @@
 
     prepInput(thisInput, timestamp)
 
-    thisInput.focus();
     scrollToBottom(bookmarkList)
+    thisInput.focus();
 
     const cancelInput = newMouseElement.querySelector('.bookmark_input');
     if (removeBookmark) {
@@ -727,42 +733,15 @@
     let holdTimer;
     let holdCompleted = false;
 
-    function onHoldComplete(event) {
-      console.log("HELD DOWN!")
-      const firstInput = newMouseElement.querySelector("input.bookmark_input");
-      // gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
-      isAnimating = false;
-      firstInput.scrollLeft = 0;
-      firstInput.style.textOverflow = 'ellipsis';
-
-      let inp = event.target.querySelector("#current_input");
-
-      if (inp) {
-        // inp.style.pointerEvents = "auto";
-        inp.disabled = false;
-        inp.focus();
-        inp.setSelectionRange(0, 0);
-        inp.scrollLeft = 0; // Reset scroll position to the start
-      }
-
-      prepInput(inp, inp.parentNode.querySelector("#current_time").value)
-
-      inp.setSelectionRange(0, 0);
-      holdCompleted = true;
-      event.preventDefault();
-    }
-
     newMouseElement.addEventListener("mouseover", (event) => {
+      event.preventDefault();
       // Find the first input element inside the .mouse_element
-      const firstInput = newMouseElement.querySelector("input.bookmark_input");
-
       if (firstInput && firstInput.disabled) {
         const isOverflowing = firstInput.scrollWidth > firstInput.clientWidth;
         if (isOverflowing && !isAnimating) {
-          isAnimating = true; // Mark animation as running
-          // Calculate how much to scroll by (input's full scroll width)
+          console.log("ANIMATING!")
           firstInput.style.textOverflow = 'clip';
-          horizontalLoopInput(firstInput, { speed: 25 });  // Start marquee effect
+          horizontalLoopInput(firstInput, { speed: 50 }, isAnimating);  // Start marquee effect
         }
       }
 
@@ -786,7 +765,10 @@
       gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
       isAnimating = false;
 
-      holdTimer = setTimeout(() => onHoldComplete(event), 1000);
+      holdTimer = setTimeout(() => {
+        onHoldComplete(event, el, true)
+        holdCompleted = true
+      }, 1000);
     });
 
     newMouseElement.addEventListener("mouseup", (event) => {
@@ -794,6 +776,8 @@
 
       if (holdCompleted) {
         event.preventDefault();
+      } else {
+        simulateKeyPress();
       }
 
       let inp = event.target.querySelector("#current_input");
@@ -804,6 +788,8 @@
 
     newMouseElement.addEventListener("mouseleave", (event) => {
       clearTimeout(holdTimer);
+      isAnimating = false;
+      gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
 
       let inp = event.target.querySelector("#current_input");
       if (inp) {
@@ -813,7 +799,7 @@
   }
 
   function appendTextElement(timestamp, description) {
-    let isAnimating = false;
+    isAnimating = false;
     const newMouseElement = document.createElement('li');
     newMouseElement.className = 'mouse_element';
 
@@ -824,6 +810,28 @@
       `;
 
     const removeBookmark = newMouseElement.querySelector('.remove_bookmark');
+    const firstInput = newMouseElement.querySelector('input.bookmark_input');
+
+    let tl = firstInput.gsapTimeline || gsap.timeline({
+      onComplete: () => {
+        isAnimating = false;
+      }
+    });
+
+    if (!firstInput.gsapTimeline) {
+      tl.to(firstInput, {
+        scrollTo: { x: firstInput.scrollWidth - firstInput.clientWidth },
+        duration: 50,  // Adjust speed as needed
+        ease: "none",
+        onUpdate: () => console.log('Current Scroll Position:', firstInput.scrollLeft),
+        onComplete: () => {
+          tl.restart(); // Loop animation
+        }
+      });
+
+      firstInput.gsapTimeline = tl;  // Cache timeline
+    }
+
     if (removeBookmark) {
       removeBookmark.addEventListener("click", (event) => {
         event.target.parentNode.remove()
@@ -849,41 +857,14 @@
     let holdTimer;
     let holdCompleted = false;
 
-    function onHoldComplete(event) {
-      const firstInput = newMouseElement.querySelector("input.bookmark_input");
-      // gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
-      isAnimating = false;
-      firstInput.scrollLeft = 0;
-      firstInput.style.textOverflow = 'ellipsis';
-
-      if (firstInput) {
-        // inp.style.pointerEvents = "auto"
-        firstInput.disabled = false;
-
-        firstInput.focus();
-        firstInput.setSelectionRange(0, 0);
-        firstInput.scrollLeft = 0; // Reset scroll position to the start
-      }
-
-      console.log(firstInput)
-
-      prepInput(firstInput, firstInput.parentNode.querySelector("#current_time").value)
-      holdCompleted = true;
-      event.preventDefault();
-    }
-
     newMouseElement.addEventListener("mouseover", (event) => {
       // Find the first input element inside the .mouse_element
-      const firstInput = newMouseElement.querySelector("input.bookmark_input");
-
       if (firstInput && firstInput.disabled) {
         const isOverflowing = firstInput.scrollWidth > firstInput.clientWidth;
         if (isOverflowing && !isAnimating) {
-          isAnimating = true; // Mark animation as running
-          // Calculate how much to scroll by (input's full scroll width)
           firstInput.style.textOverflow = 'clip';
-
-          horizontalLoopInput(firstInput, { speed: 25 });  // Start marquee effect
+          // Calculate how much to scroll by (input's full scroll width)
+          horizontalLoopInput(firstInput, { speed: 50 }, isAnimating);  // Start marquee effect
         }
       }
 
@@ -892,9 +873,9 @@
 
     newMouseElement.addEventListener("mouseout", () => {
       const firstInput = newMouseElement.querySelector("input.bookmark_input");
-      gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
-      isAnimating = false;
+      tl.pause();  // Stop scrolling
       firstInput.scrollLeft = 0; // Reset scroll position to the start
+      isAnimating = false;
       firstInput.style.textOverflow = 'ellipsis';
     });
 
@@ -902,25 +883,28 @@
       holdCompleted = false;
 
       clearTimeout(holdTimer);
-
       const firstInput = newMouseElement.querySelector("input.bookmark_input");
       gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
       isAnimating = false;
-      firstInput.scrollLeft = 0;
-      firstInput.style.textOverflow = 'ellipsis';
 
-      holdTimer = setTimeout(() => onHoldComplete(event), 1000);
+      holdTimer = setTimeout(() => {
+        onHoldComplete(event, newMouseElement, true)
+        holdCompleted = true
+      }, 1000);
     });
 
     newMouseElement.addEventListener("mouseup", (event) => {
       clearTimeout(holdTimer);
 
-      if (holdCompleted) {
+      let inp = event.target.querySelector("#bookmark_input");
+      if (inp !== null) {
+        inp.style.pointerEvents = "none";
         event.preventDefault();
       }
 
-      let inp = event.target.querySelector("#current_input");
-      inp.style.pointerEvents = "none";
+      if (holdCompleted) {
+        event.preventDefault();
+      }
     });
 
     newMouseElement.addEventListener("mouseleave", (event) => {
@@ -928,26 +912,80 @@
 
       let inp = event.target.querySelector("#current_input");
       inp.style.pointerEvents = "none";
+
+      const firstInput = newMouseElement.querySelector("input.bookmark_input");
+      gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
+      isAnimating = false;
+      firstInput.scrollLeft = 0;
+      firstInput.style.textOverflow = 'ellipsis';
+    });
+
+    newMouseElement.addEventListener("click", (event) => {
+      if (holdCompleted && event.target === newMouseElement) {
+        event.preventDefault();
+        holdCompleted = false;
+        return;
+      }
+
+      let inp = event.target.querySelector("#current_time");
+      if (event.target === newMouseElement && !holdCompleted) {
+        manageBookmarkTime(inp);
+        simulateKeyPress();
+      }
     });
   }
 
-  let isAnimating = false;
-
   function horizontalLoopInput(input, config) {
-    if (isAnimating) return;
+    if (isAnimating) return; // Prevent duplicate animations
     isAnimating = true;
 
     config = config || {};
-
     const scrollDistance = input.scrollWidth - input.clientWidth;
     const duration = scrollDistance / (config.speed || 50);
 
-    gsap.timeline({ onComplete: () => isAnimating = false })
+    gsap.timeline({
+      onComplete: () => {
+        isAnimating = false;
+      }
+    })
       .to(input, {
         scrollTo: { x: scrollDistance },
         duration: duration,
         ease: "none",
-      })
+        modifiers: {
+          scrollTo(value) {
+            return Math.round(value); // Ensure rounded values to avoid jitter
+          }
+        },
+        onUpdate: () => {
+          // console.log('Current Scroll Position:', input.scrollLeft);
+        },
+        onComplete: () => {
+          isAnimating = false;
+        }
+      });
+  }
+
+  function onHoldComplete(event, el, curr) {
+    const firstInput = el.querySelector("input.bookmark_input");
+    gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
+    firstInput.scrollLeft = 0;
+    firstInput.style.textOverflow = 'ellipsis';
+
+    if (firstInput) {
+      // inp.style.pointerEvents = "auto"
+      firstInput.disabled = false;
+
+      firstInput.focus();
+      firstInput.setSelectionRange(0, 0);
+      firstInput.scrollLeft = 0; // Reset scroll position to the start
+    }
+
+    console.log(firstInput)
+
+    prepInput(firstInput, curr ? firstInput.parentNode.querySelector("#current_time").value : firstInput.parentNode.querySelector("#bookmark_time").value)
+    holdCompleted = true;
+    event.preventDefault();
   }
 
   function generateDynamicHtmlFromObject(obj) {
@@ -977,31 +1015,23 @@
     });
 
     Array.from(document.getElementsByClassName("mouse_element")).forEach((el) => {
-      let isAnimating = false;
-      el.addEventListener("mouseover", (event) => {
-        // Find the first input element inside the .mouse_element
-        // event.preventDefault();
+      const firstInput = el.querySelector("input.bookmark_input");
 
-        const firstInput = el.querySelector("input.bookmark_input");
+      el.addEventListener("mouseover", (event) => {
 
         if (firstInput && firstInput.disabled) {
           const isOverflowing = firstInput.scrollWidth > firstInput.clientWidth;
           if (isOverflowing && !isAnimating) {
-            isAnimating = true; // Mark animation as running
-            // Calculate how much to scroll by (input's full scroll width)
             firstInput.style.textOverflow = 'clip';
-
-            horizontalLoopInput(firstInput, { speed: 50 });  // Start marquee effect
+            horizontalLoopInput(firstInput, { speed: 50 }, isAnimating);  // Start marquee effect
           }
         }
-
-        event.preventDefault();
       });
 
       el.addEventListener("mouseout", () => {
         const firstInput = el.querySelector("input.bookmark_input");
-        gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
         isAnimating = false;
+        gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
         firstInput.scrollLeft = 0; // Reset scroll position to the start
         firstInput.style.textOverflow = 'ellipsis';
       });
@@ -1014,7 +1044,7 @@
         }
 
         let inp = event.target.querySelector("#bookmark_time");
-        if (event.target === el) {
+        if (event.target === el && !holdCompleted) {
           manageBookmarkTime(inp);
           simulateKeyPress();
         }
@@ -1022,28 +1052,6 @@
 
       let holdTimer;
       let holdCompleted = false;
-
-      function onHoldComplete(event) {
-        const firstInput = el.querySelector("input.bookmark_input");
-        gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
-        isAnimating = false;
-        firstInput.scrollLeft = 0;
-        firstInput.style.textOverflow = 'ellipsis';
-
-        let inp = event.target.querySelector("#bookmark_input");
-
-        if (inp) {
-          // inp.style.pointerEvents = "auto"
-          inp.disabled = false;
-
-          inp.focus();
-          inp.setSelectionRange(0, 0);
-        }
-
-        prepInput(inp, inp.parentNode.querySelector("#bookmark_time").value)
-        holdCompleted = true;
-        event.preventDefault();
-      }
 
       el.addEventListener("mousedown", (event) => {
         holdCompleted = false;
@@ -1055,7 +1063,10 @@
         firstInput.scrollLeft = 0;
         firstInput.style.textOverflow = 'ellipsis';
 
-        holdTimer = setTimeout(() => onHoldComplete(event), 1000);
+        holdTimer = setTimeout(() => {
+          onHoldComplete(event, el, false)
+          holdCompleted = true
+        }, 1000);
       });
 
       el.addEventListener("mouseup", (event) => {
@@ -1064,7 +1075,6 @@
         let inp = event.target.querySelector("#bookmark_input");
         if (inp !== null) {
           inp.style.pointerEvents = "none";
-          event.preventDefault();
         }
 
         if (holdCompleted) {
@@ -1074,7 +1084,7 @@
 
       el.addEventListener("mouseleave", (event) => {
         clearTimeout(holdTimer);
-
+        isAnimating = false;
         let inp = event.target.querySelector("#bookmark_input");
         inp.style.pointerEvents = "none"
       });

@@ -67,6 +67,7 @@ text-overflow: ellipsis;
 color: white;
 pointer-events: none;
 font-size: .75vw;
+will-change: scroll-position;
 `
 
 let bookmark_label = `
