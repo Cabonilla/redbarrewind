@@ -156,7 +156,7 @@ width: 12vw;
 let link_logo_style = `
 width: .65vw;
 height: auto;
-filter: invert(73%) sepia(28%) saturate(8%) hue-rotate(314deg) brightness(106%) contrast(116%);
+// filter: invert(73%) sepia(28%) saturate(8%) hue-rotate(314deg) brightness(106%) contrast(116%);
 z-index: 100;
 `;
 
@@ -168,15 +168,15 @@ user-select: none;
 `;
 
 let time_logo_style = `
-width: .75vw;
+width: .65vw;
 height: auto;
-filter: invert(73%) sepia(28%) saturate(8%) hue-rotate(314deg) brightness(106%) contrast(116%);
+// filter: invert(73%) sepia(28%) saturate(8%) hue-rotate(314deg) brightness(106%) contrast(116%);
 `;
 
 let bookmark_logo_style = `
 width: .65vw;
 height: auto;
-filter: invert(73%) sepia(28%) saturate(8%) hue-rotate(314deg) brightness(106%) contrast(116%);
+// filter: invert(73%) sepia(28%) saturate(8%) hue-rotate(314deg) brightness(106%) contrast(116%);
 `;
 
 let input_style = `

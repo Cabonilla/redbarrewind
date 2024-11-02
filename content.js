@@ -18,6 +18,8 @@
   let savedScrollPos = 0;
   let isAnimating = false;
 
+  let youtubeVariations = ["watch", "live"]
+
   let fontLinks = {
     DotGothic: `chrome-extension://${chrome.runtime.id}/assets/DotGothic.ttf`,
     Grischel: `chrome-extension://${chrome.runtime.id}/assets/Grischel.ttf`,
@@ -411,6 +413,7 @@
   const rr_logo = chrome.runtime.getURL("assets/RedbarLogo.svg");
   const link_logo = chrome.runtime.getURL("assets/link_8bit.svg");
   const time_logo = chrome.runtime.getURL("assets/clock_8bit.svg");
+  const arrow_logo = chrome.runtime.getURL("assets/link_arrow.svg");
   const bookmark_logo = chrome.runtime.getURL("assets/bookmark_8bit.svg");
   const add_logo = chrome.runtime.getURL("assets/add.svg");
 
@@ -425,10 +428,10 @@
         <form style="${form_style}" id="jumpForm" method="dialog">
           <input style="${input_style}" autocomplete="off" type="text" id="timeInput" class="timeInput" name="timeInput" placeholder="00:00:00" maxlength="8"/>
           <div class="button_group" style="${buttons_style}">
-            <button style="${button_style}" id="submitButton" type="submit" value="jump" name="action"><span>→</span></button>
+            <button style="${button_style}" id="submitButton" type="submit" value="jump" name="action"><img src="${arrow_logo}" style="${time_logo_style}"/></button>
             <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"><img src="${time_logo}" style="${time_logo_style}"/></button>
-            <button ${window.location.href.includes("youtube.com/watch") ? `` : "disabled"} style="${link_button_style}" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
-            <button ${window.location.href.includes("youtube.com/watch") ? `` : "disabled"} style="${bookmark_button_style}" id="bookmarkButton" type="submit" value="bookmark" name="bookmark" class="rr_tooltip-trigger"><img src="${bookmark_logo}" style="${bookmark_logo_style}"/></button> 
+            <button ${youtubeVariations.some((el) => window.location.href.includes("youtube.com/" + el)) ? `` : "disabled"} style="${link_button_style}" id="linkButton" type="submit" value="link" name="link" class="rr_tooltip-trigger"><img src="${link_logo}" style="${link_logo_style}"/></button>
+            <button ${youtubeVariations.some((el) => window.location.href.includes("youtube.com/" + el)) ? `` : "disabled"} style="${bookmark_button_style}" id="bookmarkButton" type="submit" value="bookmark" name="bookmark" class="rr_tooltip-trigger"><img src="${bookmark_logo}" style="${bookmark_logo_style}"/></button> 
           </div>
         </form>
         <small style="${small_style}">© 2023 ALL RIGHTS RESERVED. <span style="font-family: HelNeuMedIt">GIVE IT A DOWNLOAD.</span></small>
@@ -588,6 +591,7 @@
     if (isCtrlKey && isAltKey) {
       if (
         document.location.href.includes("youtube.com/watch") ||
+        document.location.href.includes("youtube.com/live") ||
         document.location.href.includes("open.spotify") ||
         document.location.href.includes("redbarradio")
       ) {
@@ -674,6 +678,60 @@
     simple.getScrollElement().scrollTop = simple.getScrollElement().scrollHeight;
   }
 
+
+  function horizontalLoopInput(input, config) {
+    if (isAnimating) return; // Prevent duplicate animations
+    isAnimating = true;
+
+    config = config || {};
+    const scrollDistance = input.scrollWidth - input.clientWidth;
+    const duration = scrollDistance / (config.speed || 50);
+
+    gsap.timeline({
+      onComplete: () => {
+        isAnimating = false;
+      }
+    })
+      .to(input, {
+        scrollTo: { x: scrollDistance },
+        duration: duration,
+        ease: "none",
+        modifiers: {
+          scrollTo(value) {
+            return Math.round(value); // Ensure rounded values to avoid jitter
+          }
+        },
+        onUpdate: () => {
+          // console.log('Current Scroll Position:', input.scrollLeft);
+        },
+        onComplete: () => {
+          isAnimating = false;
+        }
+      });
+  }
+
+  function onHoldComplete(event, el, curr) {
+    const firstInput = el.querySelector("input.bookmark_input");
+    gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
+    firstInput.scrollLeft = 0;
+    firstInput.style.textOverflow = 'ellipsis';
+
+    if (firstInput) {
+      // inp.style.pointerEvents = "auto"
+      firstInput.disabled = false;
+
+      firstInput.focus();
+      firstInput.setSelectionRange(0, 0);
+      firstInput.scrollLeft = 0; // Reset scroll position to the start
+    }
+
+    console.log(firstInput)
+
+    prepInput(firstInput, curr ? firstInput.parentNode.querySelector("#current_time").value : firstInput.parentNode.querySelector("#bookmark_time").value)
+    holdCompleted = true;
+    event.preventDefault();
+  }
+
   function appendMouseElement(timestamp) {
     isAnimating = false;
     const newMouseElement = document.createElement('li');
@@ -741,7 +799,9 @@
         if (isOverflowing && !isAnimating) {
           console.log("ANIMATING!")
           firstInput.style.textOverflow = 'clip';
-          horizontalLoopInput(firstInput, { speed: 50 }, isAnimating);  // Start marquee effect
+          setTimeout(() => {
+            horizontalLoopInput(firstInput, { speed: 50 }, isAnimating);  // Start marquee effect
+          }, 500)
         }
       }
 
@@ -858,13 +918,13 @@
     let holdCompleted = false;
 
     newMouseElement.addEventListener("mouseover", (event) => {
-      // Find the first input element inside the .mouse_element
       if (firstInput && firstInput.disabled) {
         const isOverflowing = firstInput.scrollWidth > firstInput.clientWidth;
         if (isOverflowing && !isAnimating) {
           firstInput.style.textOverflow = 'clip';
-          // Calculate how much to scroll by (input's full scroll width)
-          horizontalLoopInput(firstInput, { speed: 50 }, isAnimating);  // Start marquee effect
+          setTimeout(() => {
+            horizontalLoopInput(firstInput, { speed: 50 }, isAnimating);  // Start marquee effect
+          }, 500)
         }
       }
 
@@ -935,59 +995,6 @@
     });
   }
 
-  function horizontalLoopInput(input, config) {
-    if (isAnimating) return; // Prevent duplicate animations
-    isAnimating = true;
-
-    config = config || {};
-    const scrollDistance = input.scrollWidth - input.clientWidth;
-    const duration = scrollDistance / (config.speed || 50);
-
-    gsap.timeline({
-      onComplete: () => {
-        isAnimating = false;
-      }
-    })
-      .to(input, {
-        scrollTo: { x: scrollDistance },
-        duration: duration,
-        ease: "none",
-        modifiers: {
-          scrollTo(value) {
-            return Math.round(value); // Ensure rounded values to avoid jitter
-          }
-        },
-        onUpdate: () => {
-          // console.log('Current Scroll Position:', input.scrollLeft);
-        },
-        onComplete: () => {
-          isAnimating = false;
-        }
-      });
-  }
-
-  function onHoldComplete(event, el, curr) {
-    const firstInput = el.querySelector("input.bookmark_input");
-    gsap.killTweensOf(firstInput);  // Stop scrolling on mouseout
-    firstInput.scrollLeft = 0;
-    firstInput.style.textOverflow = 'ellipsis';
-
-    if (firstInput) {
-      // inp.style.pointerEvents = "auto"
-      firstInput.disabled = false;
-
-      firstInput.focus();
-      firstInput.setSelectionRange(0, 0);
-      firstInput.scrollLeft = 0; // Reset scroll position to the start
-    }
-
-    console.log(firstInput)
-
-    prepInput(firstInput, curr ? firstInput.parentNode.querySelector("#current_time").value : firstInput.parentNode.querySelector("#bookmark_time").value)
-    holdCompleted = true;
-    event.preventDefault();
-  }
-
   function generateDynamicHtmlFromObject(obj) {
     let htmlContent = `<ul id="bookmark_list" style="${bookmark_list}">`;
 
@@ -1023,7 +1030,9 @@
           const isOverflowing = firstInput.scrollWidth > firstInput.clientWidth;
           if (isOverflowing && !isAnimating) {
             firstInput.style.textOverflow = 'clip';
-            horizontalLoopInput(firstInput, { speed: 50 }, isAnimating);  // Start marquee effect
+            setTimeout(() => {
+              horizontalLoopInput(firstInput, { speed: 50 }, isAnimating);  // Start marquee effect
+            }, 500)
           }
         }
       });

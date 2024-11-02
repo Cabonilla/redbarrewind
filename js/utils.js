@@ -29,10 +29,12 @@ const handleLinkCopy = () => {
   const totalSeconds = Math.ceil(videoElement.currentTime);
 
   if (window.location.href.includes("youtube")) {
-    const pageUrl = window.location.href
+    const pageUrl = window.location.href.includes('watch') ? 
+      window.location.href  
       .replace("www.", "")
       .replace("youtube.com", "youtu.be")
-      .replace("watch?v=", "");
+      .replace("watch?v=", "") :
+      window.location.href
 
     const timestampLink = `${pageUrl}?feature=shared&t=${totalSeconds}`;
     console.log("Copied Timestamp Link:", timestampLink);
