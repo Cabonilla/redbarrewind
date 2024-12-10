@@ -287,7 +287,7 @@
   function toggleOverlay() {
     const videoSizing = document.location.href.includes("youtube.com/watch")
       ? document.getElementById("movie_player")
-      : document.location.href.includes("redbarradio.net/archives/")
+      : (document.location.href.includes("redbarradio.net/archives/") || document.location.href.includes("redbarradio.net/shows/"))
         ? document.getElementById("player_html5_api")
         : document.querySelector("video");
     const popup = document.getElementById("rr_overlay");

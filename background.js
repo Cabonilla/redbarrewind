@@ -18,7 +18,7 @@ function jumpToTime(time) {
           let videoElement;
           const iframe = document.querySelector('iframe');
 
-          if (window.location.href.includes("redbarradio.net/archives") && iframe) {
+          if (window.location.href.includes("redbarradio.net") && iframe) {
             const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
             videoElement = iframeDocument.querySelector('video');
           } else {
