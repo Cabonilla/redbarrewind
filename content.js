@@ -20,6 +20,9 @@
 
   let youtubeVariations = ["watch", "live"]
 
+  let keydownHandler = null; // Define outside to keep the reference
+  let keydownListenerAdded = false; // Flag to track if listener is attached
+
   let fontLinks = {
     DotGothic: `chrome-extension://${chrome.runtime.id}/assets/DotGothic.ttf`,
     Grischel: `chrome-extension://${chrome.runtime.id}/assets/Grischel.ttf`,
@@ -284,7 +287,7 @@
   function toggleOverlay() {
     const videoSizing = document.location.href.includes("youtube.com/watch")
       ? document.getElementById("movie_player")
-      : document.location.href.includes("redbarradio.net/shows/")
+      : document.location.href.includes("redbarradio.net/archives/")
         ? document.getElementById("player_html5_api")
         : document.querySelector("video");
     const popup = document.getElementById("rr_overlay");
@@ -609,10 +612,20 @@
           overlayAppended = true;
         }
 
+        if (!keydownHandler) {
+          keydownHandler = (e) => customKeydownHandler(e, 'timeInput');
+        }
+
         if (overlayVisibleBool.value && document.location.href.includes("redbarradio")) {
-          document.addEventListener('keydown', customKeydownHandler(event, 'timeInput'), true);
+          if (!keydownListenerAdded) {
+            document.addEventListener('keydown', keydownHandler, true);
+            keydownListenerAdded = true; // Mark listener as added
+          }
         } else {
-          document.removeEventListener('keydown', customKeydownHandler(event, 'timeInput'), true);
+          if (keydownListenerAdded) {
+            document.removeEventListener('keydown', keydownHandler, true);
+            keydownListenerAdded = false; // Mark listener as removed
+          }
         }
 
         if (!spotifyOverlayBackground) {
@@ -634,7 +647,6 @@
               generateDynamicHtmlFromObject(videoBookmarks)
             }
           });
-
         } else {
           console.error("chrome.storage API is not available.");
         }
@@ -643,13 +655,18 @@
   }
 
   function customKeydownHandler(event, element) {
+    // debugger;
     const overlayInput = document.getElementById(`${element}`);
-    const isNumberKey = (event.which >= 48 && event.which <= 57) || (event.which >= 96 && event.which <= 105);
+    const isNumberKey = event.key >= '0' && event.key <= '9';
+
+    if (!overlayInput) {
+      console.error("Element not found: ", element);
+      return;
+    }
 
     if (isNumberKey) {
       event.preventDefault();
       event.stopPropagation();
-
       overlayInput.focus();
 
       const numberKey = event.key;
@@ -660,7 +677,7 @@
         return;
       }
 
-      const inputEvent = new Event('input', { false: true });
+      const inputEvent = new Event('input', { bubbles: true });
       overlayInput.dispatchEvent(inputEvent);
     }
   }
@@ -724,8 +741,6 @@
       firstInput.setSelectionRange(0, 0);
       firstInput.scrollLeft = 0; // Reset scroll position to the start
     }
-
-    console.log(firstInput)
 
     prepInput(firstInput, curr ? firstInput.parentNode.querySelector("#current_time").value : firstInput.parentNode.querySelector("#bookmark_time").value)
     holdCompleted = true;
@@ -797,7 +812,6 @@
       if (firstInput && firstInput.disabled) {
         const isOverflowing = firstInput.scrollWidth > firstInput.clientWidth;
         if (isOverflowing && !isAnimating) {
-          console.log("ANIMATING!")
           firstInput.style.textOverflow = 'clip';
           setTimeout(() => {
             horizontalLoopInput(firstInput, { speed: 50 }, isAnimating);  // Start marquee effect
@@ -883,7 +897,6 @@
         scrollTo: { x: firstInput.scrollWidth - firstInput.clientWidth },
         duration: 50,  // Adjust speed as needed
         ease: "none",
-        onUpdate: () => console.log('Current Scroll Position:', firstInput.scrollLeft),
         onComplete: () => {
           tl.restart(); // Loop animation
         }
@@ -1106,12 +1119,10 @@
 
       scrollElement.addEventListener('scroll', function () {
         savedScrollPos = scrollElement.scrollTop;
-        console.log('Stored scroll position:', savedScrollPos);
       });
 
       if (overlayBookmarkBool.value) {
         scrollElement.scrollTop = savedScrollPos;
-        console.log('Restored scroll position:', scrollElement.scrollTop);
       }
     }
 
@@ -1210,10 +1221,8 @@
                 let replace = document.querySelector(`.mouse_element input[value="${time}"]`)
                 if (!replace) {
                   appendTextElement(time, desc)
-                  console.log("Additional Entry: ", key, time, desc)
                 } else {
                   replace.parentElement.querySelector('#bookmark_input').value = desc
-                  console.log("Collision Entry: ", key, time, desc)
                 }
               }
             }
@@ -1258,7 +1267,6 @@
       }
 
       bookmarks[videoUrl][time] = description;
-      console.log("Entered: ", videoUrl, time, description);
 
       if (description !== '') {
         chrome.storage.local.set({ bookmarks: bookmarks }, function () {

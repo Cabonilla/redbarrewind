@@ -18,12 +18,13 @@ function jumpToTime(time) {
           let videoElement;
           const iframe = document.querySelector('iframe');
 
-          if (window.location.href.includes("redbarradio.net/shows") && iframe) {
+          if (window.location.href.includes("redbarradio.net/archives") && iframe) {
             const iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
             videoElement = iframeDocument.querySelector('video');
           } else {
-            videoElement = document.querySelector("video")
+            videoElement = document.querySelector('video')
           }
+
 
           if (videoElement) {
             videoElement.currentTime = time;
@@ -114,7 +115,6 @@ async function getVideoInfo(url) {
     });
     if (!response.ok) throw new Error(`Error fetching data for ${url}`);
     const data = await response.json();
-    console.log(data)
     return {
       title: data.title,
       preview: data.thumbnail_url,
