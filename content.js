@@ -429,7 +429,7 @@
           <h1 class="rewind_text" style="${rewind_text}">Rewind®</h1>
         </div>
         <form style="${form_style}" id="jumpForm" method="dialog">
-          <input style="${input_style}" autocomplete="off" type="text" id="timeInput" class="timeInput" name="timeInput" placeholder="00:00:00" maxlength="8"/>
+          <input style="${input_style}" autocomplete="off" type="text" id="timeInput" class="timeInput" name="timeInput" placeholder="00:00:00" maxlength="9"/>
           <div class="button_group" style="${buttons_style}">
             <button style="${button_style}" id="submitButton" type="submit" value="jump" name="action"><img src="${arrow_logo}" style="${time_logo_style}"/></button>
             <button style="${time_button_style}" id="timeButton" type="submit" value="time" name="time" class="rr_tooltip-trigger"><img src="${time_logo}" style="${time_logo_style}"/></button>
@@ -508,6 +508,18 @@
     document.getElementById("timeInput").addEventListener("input", (e) => {
       let inputValue = e.target.value;
       inputValue = inputValue.replace(/[^0-9]/g, "");
+      inputValue = inputValue.replace(/^0/, '');
+      switch (inputValue.length)
+      {
+        case 1:
+        case 3:
+        case 5:
+          inputValue = "0" + inputValue;
+          break;
+        default:
+          inputValue = (inputValue.length > 6) ? inputValue.slice(0, 6) : inputValue;
+          break;
+      }
       inputValue = inputValue.replace(
         /(\d{0,2}):?(\d{0,2})?:?(\d{0,2})?/,
         function (match, p1, p2, p3) {
