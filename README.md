@@ -76,3 +76,7 @@ Clicking on these modals will open a new tab with your stored link. To delete th
 If you encounter any issues with the extension, feel free to reach out. 
 
 This application is in the public domain. Download, change, enhance, repurpose, and re-release it however you'd like. 
+
+Special thanks to: <br/>
+[/r/redbarbbr](https://www.reddit.com/r/redbarbbr/) <br/>
+[toamatoro](https://github.com/toamatoro)
